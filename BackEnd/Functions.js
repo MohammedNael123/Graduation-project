@@ -50,8 +50,12 @@ const uploadfiledpx = async (courseId,file , res)=>{
             console.log("error while inserting into week_pdf_course",errorweek);
         }
         console.log("shared link : " , sharedlink,data[0].id);
-        fs.unlinkSync(file.path);
-        console.log("file deleted successfuly");
+        if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+            console.log("File deleted successfully");
+        } else {
+            console.warn("File already deleted or not found:", file.path);
+        }
         
     })
     });
