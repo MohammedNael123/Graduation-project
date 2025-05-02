@@ -13,7 +13,7 @@ const SignUpPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/sign_up", formData);
+      const res = await axios.post("https://graduation-project-c7pi.onrender.com/sign_up", formData);
       setMessage(res.data.message);
       window.location.href = '/login';
 

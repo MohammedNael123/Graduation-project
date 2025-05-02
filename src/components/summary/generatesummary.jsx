@@ -25,7 +25,7 @@ export default function DocumentSummarizer() {
     setError('');
     
     try {
-      const response = await axios.post('http://localhost:5000/api/generate-summarization', {
+      const response = await axios.post('https://graduation-project-c7pi.onrender.com/api/generate-summarization', {
         fileUrl: selectedFile,
         lang
       });
@@ -41,7 +41,7 @@ export default function DocumentSummarizer() {
   useEffect(() => {
     const getFiles = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/getfiles?course=${courseId}`, {
+        const res = await axios.get(`https://graduation-project-c7pi.onrender.com/getfiles?course=${courseId}`, {
           withCredentials: true,
         });
         const processedFiles = res.data.map(file => ({

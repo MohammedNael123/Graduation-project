@@ -19,7 +19,7 @@ const CourseForm = () => {
     formData.append("file", uploadedFile);
 
     try {
-      const response = await fetch("http://localhost:5000/createCourse", {
+      const response = await fetch("https://graduation-project-c7pi.onrender.com/createCourse", {
         method: "POST",
         body: formData,
         credentials: "include",

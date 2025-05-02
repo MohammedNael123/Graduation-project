@@ -19,17 +19,21 @@ const majorcheck = require("./Controllers/AiTools/major check12.js");
 const app = express();
 //app.use(cookieParser());
 
+app.set('trust proxy', 1); // مهم جدًا عند النشر على Render
+
 app.use(session({
-  secret:"my secret",
+  secret: "my secret",
   resave: false,
-  saveUninitialized:true,
+  saveUninitialized: true,
   cookie: {
-    secure: false, // Set to true in production with HTTPS
-    }
-  }));
+    secure: true,            // لازم يكون true لأنك تستخدم HTTPS
+    sameSite: "none"         // مهم للسماح بالكوكيز عبر نطاقين مختلفين (cross-site)
+  }
+}));
+
 
 app.use(cors({
-  origin:["http://localhost:3000"],
+  origin:["https://darisni.netlify.app"],
   methods:["POST","GET"],
   credentials: true
 }));

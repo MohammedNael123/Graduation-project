@@ -14,32 +14,15 @@ const LogInPage = () => {
   const [userCourses , setCourses] = useState([]);
 
   const navigate = useNavigate();
-  useEffect(() => {
-    const getCourses = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/getCourses", { withCredentials: true });
-        setCourses(res.data);
-
-      } catch (err) {
-        console.log("failed to fetch courses")
-      }
-    };
-
-    getCourses();
-  }, []);
-
-
   axios.defaults.withCredentials = true;
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
+    
     try {
-      console.log("Attempting login...");
-  
-      const res = await axios.post("http://localhost:5000/log_in", formData, {
+      const res = await axios.post("https://graduation-project-c7pi.onrender.com/log_in", formData, {
         headers: { "Content-Type": "application/json" },
       });
   
@@ -47,21 +30,20 @@ const LogInPage = () => {
         setMessage("Login successful!");
         console.log("User logged in:", res.data);
   
-        // نحفظ بيانات المستخدم
+        // حفظ بيانات المستخدم في localStorage
         localStorage.setItem("user", JSON.stringify(res.data.user));
   
-        // نسحب الكورسات بعد تسجيل الدخول
-        const coursesRes = await axios.get("http://localhost:5000/getCourses", {
+        // إرسال الطلب بعد تسجيل الدخول مع الـ credentials
+        const coursesRes = await axios.get("https://graduation-project-c7pi.onrender.com/getCourses", {
           withCredentials: true
         });
   
         const courses = coursesRes.data;
         if (courses.length > 0) {
-          window.location.href = '/mycourses';
+          navigate('/mycourses');
         } else {
-          window.location.href = '/addCourse';
+          navigate('/addCourse');
         }
-  
       } else {
         setMessage(res.data.message || "Login failed! Please check your credentials.");
       }
@@ -72,6 +54,7 @@ const LogInPage = () => {
       setLoading(false);
     }
   };
+  
   
 
   const handleChange = (e) => {

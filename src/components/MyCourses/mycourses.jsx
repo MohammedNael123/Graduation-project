@@ -15,7 +15,7 @@ const MyCourses = () => {
   useEffect(() => {
     const getCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/getCourses", { 
+        const res = await axios.get("https://graduation-project-c7pi.onrender.com/getCourses", { 
           withCredentials: true 
         });
         setCourses(res.data);
@@ -31,7 +31,7 @@ const MyCourses = () => {
   const handleDelete = async (courseId) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
-        await axios.post(`http://localhost:5000/deleteCourse/${courseId}`, null, {
+        await axios.post(`https://graduation-project-c7pi.onrender.com/deleteCourse/${courseId}`, null, {
           withCredentials: true
         });
       } catch (err) {

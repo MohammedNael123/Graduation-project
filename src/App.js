@@ -26,7 +26,7 @@ function App() {
   const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
-    axios.get("http://localhost:5000/profile", { withCredentials: true })
+    axios.get("https://graduation-project-c7pi.onrender.com/profile", { withCredentials: true })
       .then(res => {
         if (res.data.email) {
           setAuth(true);

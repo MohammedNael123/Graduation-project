@@ -23,7 +23,7 @@ const MajorCheck = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/major-definition', {
+      const response = await fetch('https://graduation-project-c7pi.onrender.com/api/major-definition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ major, language })
@@ -49,7 +49,7 @@ const MajorCheck = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/generate-test', {
+      const response = await fetch('https://graduation-project-c7pi.onrender.com/api/generate-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ major, language })

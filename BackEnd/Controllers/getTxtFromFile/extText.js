@@ -15,9 +15,9 @@ async function getfilepath(fileUrl) {
   try {
     const parsedUrl = new URL(fileUrl);
     const filename = path.basename(parsedUrl.pathname);
-    const filePath = path.join("tempDownload", filename);
+    const filePath = path.join("tmp ", filename);
 
-    await fs.ensureDir("tempDownload");
+    await fs.ensureDir("tmp ");
 
     const response = await axios({
       url: fileUrl,

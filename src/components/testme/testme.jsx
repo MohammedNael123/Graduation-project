@@ -11,7 +11,7 @@ const PdfWithGemini = () => {
   const rawUrl = location.state?.fileUrl;
   const fileUrl = rawUrl?.replace("dl=1", "raw=1");
   const proxyUrl = fileUrl
-    ? `http://localhost:5000/api/pdf-proxy?url=${encodeURIComponent(fileUrl)}`
+    ? `https://graduation-project-c7pi.onrender.com/api/pdf-proxy?url=${encodeURIComponent(fileUrl)}`
     : null;
 
   // Refs & state for PDF
@@ -83,7 +83,7 @@ const PdfWithGemini = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/test-me", {
+      const res = await fetch("https://graduation-project-c7pi.onrender.com/api/test-me", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input, fileUrl }),

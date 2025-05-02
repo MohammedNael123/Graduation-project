@@ -30,7 +30,7 @@ const UploadCourseFile = () => {
 
     try {
       await axios.post(
-        `http://localhost:5000/upload/${courseId}`,
+        `https://graduation-project-c7pi.onrender.com/upload/${courseId}`,
         formData,
         {
           withCredentials: true,

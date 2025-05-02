@@ -16,7 +16,7 @@ const EditCourses = () => {
     useEffect(() => {
         const getFiles = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/getfiles?course=${courseId}`, {
+                const res = await axios.get(`https://graduation-project-c7pi.onrender.com/getfiles?course=${courseId}`, {
                     withCredentials: true,
                 });
                 const processedFiles = res.data.map(file => ({
@@ -38,7 +38,7 @@ const EditCourses = () => {
 
     const updateCourseName = async () => {
         try {
-            const res = await axios.post("http://localhost:5000/EditCourseName", {
+            const res = await axios.post("https://graduation-project-c7pi.onrender.com/EditCourseName", {
                 courseId: courseId,
                 newName: courseName
             }, {

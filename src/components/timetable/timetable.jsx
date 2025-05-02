@@ -29,7 +29,7 @@ const Timetable = () => {
     setIsUploading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/generate-timetable', {
+      const response = await fetch('https://graduation-project-c7pi.onrender.com/api/generate-timetable', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -55,7 +55,7 @@ const Timetable = () => {
   useEffect(() => {
     const getFiles = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/getfiles?course=${courseId}`, {
+        const res = await axios.get(`https://graduation-project-c7pi.onrender.com/getfiles?course=${courseId}`, {
           withCredentials: true,
         });
         const processedFiles = res.data.map(file => ({
