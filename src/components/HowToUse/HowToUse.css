@@ -1,0 +1,102 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Container for the entire section */
+.how-to-use-container {
+  padding: 6rem 2rem;
+  background: white; /* White background */
+  color: #000; /* Black text for better readability */
+  text-align: center;
+  font-family: 'Poppins', sans-serif; /* Modern font */
+}
+
+/* Title styling */
+.how-to-use-title {
+  font-size: 2.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700; /* Bold for emphasis */
+  color: #2575fc; /* Accent color for the title */
+  line-height: 1.2;
+}
+
+/* Subtitle styling */
+.how-to-use-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 4rem;
+  opacity: 0.9;
+  color: #000; /* Black text */
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Container for the steps */
+.steps-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Individual step card styling */
+.step-card {
+  background: #ffffff; /* White background for cards */
+  border-radius: 15px;
+  padding: 2.5rem 2rem;
+  width: 280px;
+  border: 1px solid #e0e0e0; /* Subtle border */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft shadow */
+}
+
+.step-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow on hover */
+}
+
+.step-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: #2575fc; /* Accent color for step titles */
+  font-weight: 600;
+}
+
+.step-card p {
+  font-size: 1rem;
+  opacity: 0.9;
+  color: #000; /* Black text */
+  line-height: 1.6;
+}
+.start-studying  {
+  margin: 100px;
+}
+ 
+ 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .how-to-use-container {
+    padding: 4rem 1.5rem;
+  }
+
+  .how-to-use-title {
+    font-size: 2.25rem;
+  }
+
+  .how-to-use-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+  }
+
+  .steps-container {
+    gap: 1.5rem;
+  }
+
+  .step-card {
+    width: 100%;
+    max-width: 350px;
+    padding: 2rem 1.5rem;
+  }
+}

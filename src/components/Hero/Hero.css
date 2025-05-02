@@ -1,0 +1,64 @@
+/* Hero Section Styles */
+
+.hero {
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Matching colors for the hero section */
+    color: #ffffff; /* White text for contrast */
+    padding: 100px 2rem; /* Adding space around the hero content */
+    text-align: center;
+    position: relative;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .hero-heading {
+    font-size: 3rem; /* Big font size for the header */
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-family: 'Shadows Into Light', sans-serif; /* Same font for consistency */
+  }
+  
+  .hero-subheading {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+  
+  .hero-cta-button {
+    background-color: #ffffff; /* White button to stand out */
+    color: #6a11cb; /* Matching color for the text */
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hero-cta-button:hover {
+    background-color: #6b98e8; /* Blue on hover */
+    color: #ffffff;
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    .hero-heading {
+      font-size: 2.5rem;
+    }
+  
+    .hero-subheading {
+      font-size: 1.125rem;
+    }
+  
+    .hero-cta-button {
+      font-size: 1.1rem;
+      padding: 0.75rem 1.5rem;
+    }
+  }
+  
