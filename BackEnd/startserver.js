@@ -39,18 +39,6 @@ app.use(cors({
 }));
 
 
-app.use((req,res,next)=>{
-  if(!req.session.user){
-    req.session.user ={
-      id: "",
-      email: "",
-      name: "",
-    } 
-    console.log('Session initialized with default values');
-  }
-  next();
-});
-
 app.use("/" , sign_up);
 app.use("/" , log_in);
 app.use("/" , User);
