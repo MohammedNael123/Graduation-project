@@ -1,6 +1,6 @@
-const express = require("express");
+
+  const express = require("express");
 const cors = require('cors');
-require('dotenv').config();
 const session = require("express-session");
 const sign_up = require("./Controllers/SignUpController");
 const log_in = require("../BackEnd/Controllers/LogInController");
@@ -20,24 +20,36 @@ const majorcheck = require("./Controllers/AiTools/major check12.js");
 const app = express();
 //app.use(cookieParser());
 
+app.set('trust proxy', 1); // مهم جدًا عند النشر على Render
+
 app.use(session({
-  secret: "uR@!#4d2l0J9a7&*KmZfPqC8sT#5xBnV", // مفتاح قوي
+  secret: "uR@!#4d2l0J9a7&*KmZfPqC8sT#5xBnV",
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: true,         // لازم لأنه HTTPS (Netlify + Render)
-    sameSite: "none"      // ضروري مع frontend من دومين مختلف
+    secure: true,            // لازم يكون true لأنك تستخدم HTTPS
+    sameSite: "none"         // مهم للسماح بالكوكيز عبر نطاقين مختلفين (cross-site)
   }
 }));
 
 
-
 app.use(cors({
-  origin: ["http://localhost:3000", "https://darisni.netlify.app"],
-  methods: ["POST", "GET"],
+  origin:["https://darisni.netlify.app/"],
+  methods:["POST","GET"],
   credentials: true
 }));
 
+app.use((req,res,next)=>{
+  if(!req.session.user){
+    req.session.user ={
+      id: "",
+      email: "",
+      name: "",
+    } 
+    console.log('Session initialized with default values');
+  }
+  next();
+});
 
 app.use("/" , sign_up);
 app.use("/" , log_in);
