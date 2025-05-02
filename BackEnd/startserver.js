@@ -18,39 +18,37 @@ const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
 
 const app = express();
-//app.use(cookieParser());
 
+// Middleware for handling sessions
 app.use(session({
   secret: "uR@!#4d2l0J9a7&*KmZfPqC8sT#5xBnV", // مفتاح قوي
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false, // تأكد من عدم إعادة التهيئة دائمًا
   cookie: {
-    secure: true,         // لازم لأنه HTTPS (Netlify + Render)
-    sameSite: "none"      // ضروري مع frontend من دومين مختلف
+    secure: true, // نحتاج HTTPS في الإنتاج (مثل Render أو Netlify)
+    sameSite: "None", // ضروري للعمل عبر نطاقات مختلفة
+    httpOnly: true // حماية الـ cookie من الوصول عبر JavaScript
   }
 }));
 
-
-
+// CORS configuration to allow credentials (cookies)
 app.use(cors({
-  origin: ["http://localhost:3000", "https://darisni.netlify.app"],
+  origin: ["http://localhost:3000", "https://darisni.netlify.app"],  // إضافة النطاقات المسموحة
   methods: ["POST", "GET"],
   credentials: true
 }));
 
-
-app.use((req,res,next)=>{
-  if(!req.session.user){
-    req.session.user ={
-      id: "",
-      email: "",
-      name: "",
-    } 
-    console.log('Session initialized with default values');
+// Middleware to check session before accessing protected routes
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    console.log("Session not found, user not logged in.");
+    return res.status(401).json({ message: "Please Login!" });
   }
+  console.log("Session info:", req.session.user);
   next();
 });
 
+// Controllers
 app.use("/" , sign_up);
 app.use("/" , log_in);
 app.use("/" , User);
@@ -66,10 +64,8 @@ app.use("/" , generatesummary);
 app.use("/" , testme);
 app.use("/" , majorcheck);
 
-
-
+// Starting the server
 const Port = 5000;
 app.listen(Port, () => {
-    console.log(`Server is running on http://localhost:${Port}`);
-  });
-  
+  console.log(`Server is running on http://localhost:${Port}`);
+});
