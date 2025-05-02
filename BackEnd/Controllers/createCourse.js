@@ -6,69 +6,56 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs-extra");
 
+const TMP_DIR = process.env.TMP_DIR || "/tmp/";
+fs.ensureDirSync(TMP_DIR);
+
 router.use(express.json());
 router.use(session({
   secret: "my secret",
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === "production", // Secure cookies in production
-    sameSite: "none", // Important for cross-site cookies
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
   }
 }));
 
-// Multer storage configuration
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/tmp/"); // Use the /tmp/ folder for cloud environments
-  },
-  filename: function (req, file, cb) {
-    const uniquename = Date.now().toString();
-    const fileExt = path.extname(file.originalname);
-    cb(null, uniquename + fileExt);
+  destination: (req, file, cb) => cb(null, TMP_DIR),
+  filename: (req, file, cb) => {
+    const uniquename = Date.now().toString() + path.extname(file.originalname);
+    cb(null, uniquename);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 router.post("/createCourse", upload.single("file"), async (req, res) => {
   const user = req.session.user;
-  console.log("Session user info in create course:", req.session.user);
-  
-  // Check if user is logged in
-  if (user.id === "") {
-    console.log({ message: "Please login first!" });
-    return res.json({ message: "Please login first!" });
+  if (!user || !user.id) {
+    return res.status(401).json({ message: "Please login first!" });
   }
 
   const CourseName = req.body.name;
   const file = req.file;
-  const userId = user.id;
-
-  // Check if course name and file are provided
   if (!CourseName || !file) {
-    console.log("The course name and file can't be empty!");
     return res.status(400).json({ message: "The course name and file can't be empty!" });
   }
 
   try {
-    // Create the course
-    const course = await functions.createCourses(CourseName, userId);
+    const course = await functions.createCourses(CourseName, user.id);
     if (!course) {
-      console.log("Something went wrong during course creation!");
       return res.status(500).send("Something went wrong!");
     }
 
-    console.log("Course ID:", course);
-
-    // Upload file to Dropbox
-    const filePath = path.join("/tmp/", file.filename);
+    const filePath = path.join(TMP_DIR, file.filename);
     await functions.uploadfiledpx(course, file);
 
-    // Cleanup: Remove the uploaded file from /tmp after upload
-    fs.unlinkSync(filePath);  // Remove the temporary file after upload
+    // Delete the temp file after uploading
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Failed to delete temp file:", err);
+    });
 
-    console.log("Course created successfully with name:", CourseName);
     return res.status(200).send(`Course created successfully with name: ${CourseName}`);
   } catch (error) {
     console.error("Error occurred:", error);

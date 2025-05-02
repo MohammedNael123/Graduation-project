@@ -15,30 +15,35 @@ async function getfilepath(fileUrl) {
   try {
     const parsedUrl = new URL(fileUrl);
     const filename = path.basename(parsedUrl.pathname);
-    
-    // Use Render's tmp directory for temporary storage
-    const filePath = path.join("/tmp", filename);  // Correct path to tmp folder
 
-    // Ensure the tmp directory exists
-    await fs.ensureDir("/tmp");
+    const TMP_DIR = "/tmp";
+    const filePath = path.join(TMP_DIR, filename);
+
+    // Ensure the /tmp directory exists
+    if (!await fs.pathExists(TMP_DIR)) {
+      await fs.mkdirp(TMP_DIR); // Creates the dir recursively if needed
+      console.log("Created /tmp directory");
+    }
 
     // Download the file
     const response = await axios({
       url: fileUrl,
       method: "GET",
-      responseType: "arraybuffer", 
+      responseType: "arraybuffer",
     });
 
-    // Write the downloaded data to the temporary file path
+    // Save it to /tmp
     await fs.writeFile(filePath, response.data);
+    console.log("File downloaded to:", filePath);
 
-    return filePath; 
+    return filePath;
 
   } catch (err) {
-    console.error("Error downloading file:", err); 
-    throw err; 
+    console.error("Error downloading or preparing file:", err);
+    throw err;
   }
 }
+
 
 async function getTextFromFile(filePath) {
   try {
