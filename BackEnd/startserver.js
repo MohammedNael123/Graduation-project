@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require('cors');
+require('dotenv').config();
 const session = require("express-session");
 const sign_up = require("./Controllers/SignUpController");
 const log_in = require("../BackEnd/Controllers/LogInController");
@@ -20,19 +21,23 @@ const app = express();
 //app.use(cookieParser());
 
 app.use(session({
-  secret:"my secret",
+  secret: "uR@!#4d2l0J9a7&*KmZfPqC8sT#5xBnV", // مفتاح قوي
   resave: false,
-  saveUninitialized:true,
+  saveUninitialized: true,
   cookie: {
-    secure: true, // Set to true in production with HTTPS
-    }
-  }));
+    secure: true,         // لازم لأنه HTTPS (Netlify + Render)
+    sameSite: "none"      // ضروري مع frontend من دومين مختلف
+  }
+}));
+
+
 
 app.use(cors({
-  origin:["http://localhost:3000"],
-  methods:["POST","GET"],
+  origin: ["http://localhost:3000", "https://darisni.netlify.app"],
+  methods: ["POST", "GET"],
   credentials: true
 }));
+
 
 app.use((req,res,next)=>{
   if(!req.session.user){
