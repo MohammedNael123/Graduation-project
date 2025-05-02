@@ -1,4 +1,5 @@
-const express = require("express");
+
+  const express = require("express");
 const cors = require('cors');
 const session = require("express-session");
 const sign_up = require("./Controllers/SignUpController");
@@ -22,7 +23,11 @@ const app = express();
 app.set('trust proxy', 1); // مهم جدًا عند النشر على Render
 
 app.use(session({
+<<<<<<< HEAD
   secret: "my secret",
+=======
+  secret: "uR@!#4d2l0J9a7&*KmZfPqC8sT#5xBnV",
+>>>>>>> 524355ccb007fe6c90c932122a950479c035ada0
   resave: false,
   saveUninitialized: true,
   cookie: {
