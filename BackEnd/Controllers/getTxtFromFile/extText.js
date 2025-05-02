@@ -15,16 +15,21 @@ async function getfilepath(fileUrl) {
   try {
     const parsedUrl = new URL(fileUrl);
     const filename = path.basename(parsedUrl.pathname);
-    const filePath = path.join("tmp ", filename);
+    
+    // Use Render's tmp directory for temporary storage
+    const filePath = path.join("/tmp", filename);  // Correct path to tmp folder
 
-    await fs.ensureDir("tmp ");
+    // Ensure the tmp directory exists
+    await fs.ensureDir("/tmp");
 
+    // Download the file
     const response = await axios({
       url: fileUrl,
       method: "GET",
       responseType: "arraybuffer", 
     });
 
+    // Write the downloaded data to the temporary file path
     await fs.writeFile(filePath, response.data);
 
     return filePath; 
@@ -38,7 +43,7 @@ async function getfilepath(fileUrl) {
 async function getTextFromFile(filePath) {
   try {
     if (!filePath) {
-      console.log("اختيار ملف الرجاء");
+      console.log("Please choose a file");
       return;
     }
 
@@ -59,7 +64,7 @@ async function getTextFromFile(filePath) {
       return new Promise((resolve, reject) => {
         textract.fromFileWithPath(filePath, (err, txt) => {
           if (err) {
-            console.error("خطا في قراءه الملف");
+            console.error("Error reading the file");
             reject(err);
           } else {
             resolve(txt);
@@ -75,15 +80,20 @@ async function getTextFromFile(filePath) {
 
 async function processFile(fileUrl) {
   try {
-    //get from supabase
+    // Download the file to temporary storage
     const filepath = await getfilepath(fileUrl);
+
+    // Extract text from the file
     const fileText = await getTextFromFile(filepath);
+
+    // Clean up the temporary file
     fs.remove(filepath);
-    return (fileText);
+
+    return fileText;
 
   } catch (err) {
     console.error("Error processing file:", err);
-    return "can't read file";
+    return "Can't read file";
   }
 }
 
