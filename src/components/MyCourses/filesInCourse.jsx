@@ -27,7 +27,11 @@ const Test = () => {
                 const processedFiles = res.data.map(file => ({
                     ...file,
                     filename: file.url.split('/').pop().split('?')[0],
+<<<<<<< HEAD
                     uploadedAt: new Date().toLocaleDateString() 
+=======
+                    uploadedAt: new Date().toLocaleDateString() // Add actual upload date from API if available
+>>>>>>> 6670a89291b1c3e98dc67d258d9472f5b2c16ac3
                 }));
                 setFiles(processedFiles);
             } catch (err) {
