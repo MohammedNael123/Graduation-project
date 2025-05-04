@@ -7,7 +7,6 @@ const path = require("path");
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
-<<<<<<< HEAD
 const dpx_token = process.env.dpx_TOKEN;
 
 const dpx = new Dropbox.Dropbox({ accessToken: dpx_token, fetch: fetch });
@@ -243,4 +242,3 @@ module.exports = {
     uploadfiledpx,
     createCourses
 }
->>>>>>> 6670a89291b1c3e98dc67d258d9472f5b2c16ac3
