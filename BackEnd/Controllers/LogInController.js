@@ -8,8 +8,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 router.use(express.json());
 
 
-
-
 router.post("/log_in", async (req, res) => {
   console.log("Login request:", req.body);
   const { email, password } = req.body;
