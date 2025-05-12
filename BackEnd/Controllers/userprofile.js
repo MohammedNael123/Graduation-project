@@ -46,7 +46,7 @@ router.post('/update-profile', async (req, res) => {
     const { error } = await supabase
       .from('profiles')
       .update(updatedFields) 
-      .eq('auth_user_id', userId); 
+      .eq('id', userId); 
 
 
     if (error) {
