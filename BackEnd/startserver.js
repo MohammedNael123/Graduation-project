@@ -15,6 +15,7 @@ const editCourse = require("./Controllers/editcourse.js")
 const generatesummary = require("./Controllers/AiTools/summarization.js");
 const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
+const UserProfile = require("./Controllers/userprofile.js");
 
 const app = express();
 //app.use(cookieParser());
@@ -64,7 +65,7 @@ app.use("/" , editCourse);
 app.use("/" , generatesummary);
 app.use("/" , testme);
 app.use("/" , majorcheck);
-
+app.use("/" , UserProfile);
 
 
 

@@ -1,280 +1,275 @@
 const express = require("express");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const processFile = require("../getTxtFromFile/extText.js"); 
+
 const router = express.Router();
 router.use(express.json());
 
-// تهيئة نموذج Google Generative AI
 const genAI = new GoogleGenerativeAI("AIzaSyAIzGbi2qZcr6KMBvCiUC26NNHbhRun0M8");
 
-/**
- * دالة للتحقق من صحة التخصص باستخدام Google Generative AI
- * @param {string} major - اسم التخصص
- * @param {string} language - اللغة (ar/en)
- * @returns {Promise<boolean>} - يعيد true إذا كان التخصص معترفًا به
- */
-async function validateMajor(major, language = "en") {
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
-    const prompt = language === "ar" 
-      ? `هل "${major}" تخصص أكاديمي معترف به في الجامعات العالمية؟ أجب بـ "نعم" أو "لا" فقط دون أي شرح إضافي.`
-      : `Is "${major}" an officially recognized academic major in global universities? Answer with "yes" or "no" only without any additional explanation.`;
+// دالة مساعدة للرسائل متعددة اللغات
+const getMessage = (language, englishMsg, arabicMsg) => {
+  return language === "ar" ? arabicMsg : englishMsg;
+};
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().toLowerCase().trim();
-    
-    return text.includes("نعم") || text.includes("yes");
-  } catch (error) {
-    console.error("Validation error:", error);
-    return false;
-  }
-}
-
-/**
- * نقطة النهاية لتعريف التخصص مع التحقق التلقائي
- */
 router.post("/api/major-definition", async (req, res) => {
-  const { major, language = "en" } = req.body;
-
   try {
-    // التحقق من وجود التخصص
-    if (!major || typeof major !== "string") {
+    const { major, language = "en" } = req.body;
+
+    if (!major) {
       return res.status(400).json({ 
-        error: language === "ar" ? "يجب تقديم اسم تخصص صحيح." : "Valid major name is required."
+        error: getMessage(language, "Major is required.", "التخصص مطلوب.")
       });
     }
 
-    // التحقق من صحة التخصص
-    const isValidMajor = await validateMajor(major, language);
-    if (!isValidMajor) {
-      return res.status(400).json({
-        error: language === "ar" 
-          ? `"${major}" ليس تخصصًا أكاديميًا معترفًا به. يرجى التحقق من الاسم.`
-          : `"${major}" is not a recognized academic major. Please verify the name.`
-      });
-    }
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const prompt = getMessage(language,
+      `Provide a comprehensive definition of ${major} major including:
+      1- General definition
+      2- Core required skills
+      3- Career opportunities
+      4- Expected challenges
+      5- Related majors
 
-    // إنشاء المحتوى
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
-    const prompt = language === "ar" ? 
-      `قدم تعريفًا أكاديميًا دقيقًا لتخصص ${major} مع:
-      1- تعريف واضح (فقرة واحدة)
-      2- 3 مهارات أساسية مطلوبة
-      3- 3 مسارات وظيفية رئيسية
-      4- 3 تخصصات ذات صلة
-      
-      المخرجات بصيغة JSON:
+      Respond in JSON format:
       {
-        "definition": "النص",
-        "skills": ["...", "...", "..."],
-        "careers": ["...", "...", "..."],
-        "relatedMajors": ["...", "...", "..."]
-      }` 
-      : 
-      `Provide an academic definition of ${major} including:
-      1- Clear definition (one paragraph)
-      2- 3 core required skills
-      3- 3 main career paths
-      4- 3 related majors
-      
-      Respond in JSON:
+        "definition": "Major definition",
+        "skills": ["Skill 1", "Skill 2"],
+        "careers": ["Career 1", "Career 2"],
+        "challenges": ["Challenge 1", "Challenge 2"],
+        "relatedMajors": ["Major 1", "Major 2"]
+      }`,
+      `قدم تعريفًا شاملًا لتخصص ${major} يتضمن:
+      1- التعريف العام للتخصص
+      2- المهارات الأساسية المطلوبة
+      3- الفرص الوظيفية
+      4- التحديات المتوقعة
+      5- التخصصات ذات الصلة
+
+      أجب بصيغة JSON كالتالي:
       {
-        "definition": "text",
-        "skills": ["...", "...", "..."],
-        "careers": ["...", "...", "..."],
-        "relatedMajors": ["...", "...", "..."]
-      }`;
+        "definition": "تعريف التخصص",
+        "skills": ["المهارة 1", "المهارة 2"],
+        "careers": ["الوظيفة 1", "الوظيفة 2"],
+        "challenges": ["التحدي 1", "التحدي 2"],
+        "relatedMajors": ["التخصص 1", "التخصص 2"]
+      }`
+    );
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    const cleanedText = cleanJsonResponse(text);
     
-    res.json(parseMajorDefinition(text, language));
+    res.json(JSON.parse(cleanedText));
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Error getting major definition:", error);
     res.status(500).json({ 
-      error: language === "ar" 
-        ? "حدث خطأ في الخادم. يرجى المحاولة لاحقًا." 
-        : "Server error. Please try again later." 
+      error: getMessage(language, 
+        "Failed to get major definition", 
+        "فشل الحصول على تعريف التخصص")
     });
   }
 });
 
-/**
- * نقطة النهاية لإنشاء اختبار التخصص مع التحقق التلقائي
- */
 router.post("/api/generate-test", async (req, res) => {
-  const { major, language = "en" } = req.body;
-
   try {
-    // التحقق من وجود التخصص
-    if (!major || typeof major !== "string") {
+    const { major, language = "en" } = req.body;
+
+    if (!major) {
       return res.status(400).json({ 
-        error: language === "ar" ? "يجب تقديم اسم تخصص صحيح." : "Valid major name is required."
+        error: getMessage(language, "Major is required.", "التخصص مطلوب.")
       });
     }
 
     // التحقق من صحة التخصص
-    const isValidMajor = await validateMajor(major, language);
-    if (!isValidMajor) {
-      return res.status(400).json({
-        error: language === "ar" 
-          ? `"${major}" ليس تخصصًا أكاديميًا معترفًا به. يرجى التحقق من الاسم.`
-          : `"${major}" is not a recognized academic major. Please verify the name.`
+    const validationModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const validationPrompt = getMessage(language,
+      `Is "${major}" a known academic major in universities? Answer with "yes" or "no" only without any additional explanation.`,
+      `هل "${major}" هو تخصص دراسي معروف في الجامعات؟ أجب بـ "نعم" أو "لا" فقط بدون أي شرح إضافي.`
+    );
+
+    const validationResult = await validationModel.generateContent(validationPrompt);
+    const validationResponse = await validationResult.response;
+    const validationText = validationResponse.text().toLowerCase().trim();
+
+    // إذا كان التخصص غير معروف
+    if (validationText.includes('no') || validationText.includes('لا')) {
+      return res.status(400).json({ 
+        error: getMessage(language,
+          `Sorry, we don't recognize the '${major}' major. Please check the spelling or try another major.`,
+          `عذرًا، لا نعرف تخصص '${major}'. يرجى التأكد من الكتابة الصحيحة أو تجربة تخصص آخر.`
+        )
       });
     }
 
     // إنشاء الاختبار
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
-    const prompt = language === "ar" ?
-      `أنشئ اختبارًا قصيرًا (5 أسئلة فقط) لتخصص ${major}:
-      - 3 أسئلة عن المفاهيم الأساسية
-      - سؤالان عن الميول الشخصية
+    const testModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const testPrompt = getMessage(language,
+      `Generate a very simple beginner-friendly test for ${major} major consisting of 10 questions:
+      - 6 questions (60%) about basic major fundamentals (simple general knowledge)
+      - 4 questions (40%) about personal interests and aptitudes
+      
+      Question specifications:
+      1- All questions should be very easy and suitable for beginners
+      2- Use simple clear language
+      3- Each question should have 4 options
+      4- Fundamental questions should focus on simple general knowledge about the major
+      5- Interest questions should be simple and straightforward
+      
+      Specify question type (fundamentals|interests) in a "type" field.
+      
+      Respond in JSON format:
+      {
+        "questions": [
+          {
+            "question": "Simple and clear question text",
+            "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "type": "fundamentals|interests"
+          },
+          ...
+        ]
+      }`,
+      `أنشئ اختبارًا بسيطًا جدًا للمبتدئين لتخصص ${major} يتكون من 10 أسئلة:
+      - 6 أسئلة (60%) عن أساسيات التخصص (معلومات عامة بسيطة)
+      - 4 أسئلة (40%) عن الميول والاهتمامات الشخصية
       
       مواصفات الأسئلة:
-      1- كل الأسئلة يجب أن تكون واضحة وسهلة
-      2- كل سؤال يجب أن يحتوي على 4 خيارات
-      3- تحديد نوع السؤال (أساسيات/ميول)
+      1- جميع الأسئلة يجب أن تكون سهلة جدًا ومناسبة للمبتدئين
+      2- استخدام لغة بسيطة واضحة
+      3- كل سؤال يجب أن يحتوي على 4 خيارات
+      4- الأسئلة الأساسية تركز على معلومات عامة بسيطة عن التخصص
+      5- أسئلة الميول بسيطة وغير معقدة
       
-      الإخراج بصيغة JSON:
+      حدد نوع السؤال (أساسيات أو ميول) في حقل "type".
+      
+      الإخراج بصيغة JSON كالتالي:
       {
         "questions": [
           {
-            "question": "نص السؤال",
-            "options": ["...", "...", "...", "..."],
-            "type": "أساسيات|ميول",
-            "correctIndex": 0
-          }
+            "question": "نص السؤال البسيط والواضح",
+            "options": ["الخيار 1", "الخيار 2", "الخيار 3", "الخيار 4"],
+            "type": "أساسيات|ميول"
+          },
+          ...
         ]
       }`
-      :
-      `Generate a short test (5 questions only) for ${major} major:
-      - 3 questions about core concepts
-      - 2 questions about personal aptitudes
-      
-      Specifications:
-      1- All questions should be clear and simple
-      2- Each question must have 4 options
-      3- Specify question type (fundamentals|interests)
-      
-      Respond in JSON:
-      {
-        "questions": [
-          {
-            "question": "Question text",
-            "options": ["...", "...", "...", "..."],
-            "type": "fundamentals|interests",
-            "correctIndex": 0
-          }
-        ]
-      }`;
+    );
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const testResult = await testModel.generateContent(testPrompt);
+    const testResponse = await testResult.response;
+    const testText = testResponse.text();
+    const cleanedText = cleanJsonResponse(testText);
     
-    res.json(parseTestQuestions(text, language));
+    res.json(JSON.parse(cleanedText));
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Error generating test:", error);
     res.status(500).json({ 
-      error: language === "ar" 
-        ? "حدث خطأ في الخادم. يرجى المحاولة لاحقًا." 
-        : "Server error. Please try again later." 
+      error: getMessage(language,
+        "An error occurred while generating the test. Please try again.",
+        "حدث خطأ أثناء إنشاء الاختبار. يرجى المحاولة مرة أخرى."
+      )
     });
   }
 });
 
-/**
- * دالة لتحليل وتعريف التخصص
- */
-function parseMajorDefinition(text, language) {
+router.post("/api/generate-recommendation", async (req, res) => {
   try {
-    const cleaned = cleanJsonResponse(text);
-    const data = JSON.parse(cleaned);
-    
-    // التحقق من وجود الحقول الأساسية
-    const requiredFields = ["definition", "skills", "careers", "relatedMajors"];
-    for (const field of requiredFields) {
-      if (!data[field]) {
-        throw new Error(`Missing ${field} field`);
-      }
+    const { major, answers, language = "en" } = req.body;
+
+    if (!major || !answers || !Array.isArray(answers)) {
+      return res.status(400).json({ 
+        error: getMessage(language,
+          "Major and answers are required.",
+          "التخصص والإجابات مطلوبة."
+        )
+      });
     }
 
-    return {
-      success: true,
-      majorDefinition: {
-        definition: data.definition,
-        skills: data.skills.slice(0, 3),
-        careers: data.careers.slice(0, 3),
-        relatedMajors: data.relatedMajors.slice(0, 3)
-      }
-    };
-  } catch (error) {
-    console.error("Parsing error:", error);
-    return {
-      success: false,
-      error: language === "ar" 
-        ? "حدث خطأ في معالجة البيانات. يرجى المحاولة مرة أخرى."
-        : "Data processing error. Please try again."
-    };
-  }
-}
-
-/**
- * دالة لتحليل أسئلة الاختبار
- */
-function parseTestQuestions(text, language) {
-  try {
-    const cleaned = cleanJsonResponse(text);
-    const data = JSON.parse(cleaned);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
-    // التحقق من وجود الأسئلة
-    if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
-      throw new Error("No questions found");
-    }
+    const prompt = getMessage(language,
+      `Based on student's answers for ${major} major questions:
+      ${JSON.stringify(answers, null, 2)}
+      
+      Please:
+      1- Analyze answers for fundamentals questions (60%)
+      2- Analyze answers for interests questions (40%)
+      3- Provide comprehensive evaluation of major suitability
+      4- Suggest improvements if results are moderate
+      5- Suggest alternative majors if results are weak
+      6- Provide recommended resources to learn more
+      
+      Use simple clear language suitable for beginners.
+      
+      Respond in JSON format:
+      {
+        "fundamentalsAnalysis": "Fundamentals analysis",
+        "interestsAnalysis": "Interests analysis",
+        "recommendation": "Detailed recommendation",
+        "improvementTips": ["Tip 1", "Tip 2"],
+        "alternativeMajors": ["Major 1", "Major 2"],
+        "resources": ["Resource 1", "Resource 2"]
+      }`,
+      `بناءً على إجابات الطالب على أسئلة تخصص ${major}:
+      ${JSON.stringify(answers, null, 2)}
+      قم بما يلي:
+      1- حلل الإجابات على أسئلة الأساسيات (60%)
+      2- حلل الإجابات على أسئلة الميول (40%)
+      3- قدم تقييمًا شاملًا لمدى ملائمة التخصص للطالب
+      4- اقترح تحسينات إذا كانت النتائج متوسطة
+      5- اقترح تخصصات بديلة إذا كانت النتائج ضعيفة
+      6- قدم موارد مقترحة للتعمق في التخصص
+      
+      استخدم لغة بسيطة واضحة ومناسبة للمبتدئين.
+      
+      الإخراج بصيغة JSON كالتالي:
+      {
+        "fundamentalsAnalysis": "تحليل فهم الأساسيات",
+        "interestsAnalysis": "تحليل توافق الميول",
+        "recommendation": "توصية مفصلة",
+        "improvementTips": ["نصيحة 1", "نصيحة 2"],
+        "alternativeMajors": ["تخصص 1", "تخصص 2"],
+        "resources": ["رابط 1", "رابط 2"]
+      }`
+    );
 
-    // تقليل الأسئلة إلى 5 فقط للتأكد من التزامن مع الطلب
-    const questions = data.questions.slice(0, 5).map(q => ({
-      question: q.question,
-      options: q.options.slice(0, 4), // تأكيد وجود 4 خيارات فقط
-      type: q.type || (language === "ar" ? "أساسيات" : "fundamentals"),
-      correctIndex: q.correctIndex !== undefined ? q.correctIndex : 0
-    }));
-
-    return {
-      success: true,
-      test: {
-        totalQuestions: questions.length,
-        questions
-      }
-    };
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    const cleanedText = cleanJsonResponse(text);
+    
+    res.json(JSON.parse(cleanedText));
   } catch (error) {
-    console.error("Parsing error:", error);
-    return {
-      success: false,
-      error: language === "ar" 
-        ? "حدث خطأ في معالجة الأسئلة. يرجى المحاولة مرة أخرى."
-        : "Questions processing error. Please try again."
-    };
+    console.error("Error generating recommendation:", error);
+    res.status(500).json({ 
+      error: getMessage(language,
+        "Failed to generate recommendation",
+        "فشل إنشاء التوصية"
+      )
+    });
   }
-}
+});
 
-/**
- * دالة لتنظيف نص JSON
- */
 function cleanJsonResponse(text) {
-  // إزالة أي أحرف غير ضرورية حول JSON
-  const jsonStart = text.indexOf('{');
-  const jsonEnd = text.lastIndexOf('}') + 1;
-  
-  if (jsonStart === -1 || jsonEnd === 0) {
-    throw new Error("Invalid JSON format");
+  try {
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}') + 1;
+    const jsonString = text.slice(jsonStart, jsonEnd);
+    
+    return jsonString
+      .replace(/```json|```/g, '')
+      .replace(/\n/g, '')
+      .replace(/\t/g, '')
+      .replace(/\\'/g, "'")
+      .trim();
+  } catch (e) {
+    console.error("Error cleaning JSON:", e);
+    return '{}';
   }
-
-  return text.slice(jsonStart, jsonEnd)
-    .replace(/```(json)?/g, '')
-    .replace(/\n/g, '')
-    .trim();
 }
 
 module.exports = router;
