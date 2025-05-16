@@ -20,7 +20,7 @@ const UserProfile = require("./Controllers/userprofile.js");
 const app = express();
 //app.use(cookieParser());
 
-app.set('trust proxy', 1); // مهم جدًا عند النشر على Render
+app.set('trust proxy', 1); 
 
 app.use(session({
   secret: "my secret",

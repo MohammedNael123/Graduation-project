@@ -22,7 +22,7 @@ router.post("/api/major-definition", async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     
     const prompt = getMessage(language,
       `Provide a comprehensive definition of ${major} major including:
@@ -84,7 +84,7 @@ router.post("/api/generate-test", async (req, res) => {
     }
 
     // التحقق من صحة التخصص
-    const validationModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const validationModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     
     const validationPrompt = getMessage(language,
       `Is "${major}" a known academic major in universities? Answer with "yes" or "no" only without any additional explanation.`,
@@ -106,7 +106,7 @@ router.post("/api/generate-test", async (req, res) => {
     }
 
     // إنشاء الاختبار
-    const testModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const testModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     
     const testPrompt = getMessage(language,
       `Generate a very simple beginner-friendly test for ${major} major consisting of 10 questions:
@@ -189,7 +189,7 @@ router.post("/api/generate-recommendation", async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     
     const prompt = getMessage(language,
       `Based on student's answers for ${major} major questions:
