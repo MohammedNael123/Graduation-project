@@ -3,38 +3,85 @@ const cors = require("cors");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const processFile = require("../getTxtFromFile/extTextToTestMe.js");
+const path = require("path");
+const fs = require("fs-extra");
+const { URL } = require('url');
+
+const ILovePDFApi  = require('@ilovepdf/ilovepdf-nodejs');
+const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
+
+const ilovepdf = new ILovePDFApi(
+  process.env.ILOVEPDF_PUBLIC_KEY,
+  process.env.ILOVEPDF_PRIVATE_KEY
+);
 
 const router = express.Router();
-
 router.use(cors());
 router.use(express.json());
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+async function downloadToTemp(fileUrl) {
+  const parsed = new URL(fileUrl);
+  const filename = path.basename(parsed.pathname);
+    const tmpDir = path.join(__dirname, "..", "..", "..", "BackEnd", "Controllers", "getTxtFromFile", "tmp");
+  await fs.ensureDir(tmpDir);
+  const outPath = path.join(tmpDir, filename);
+  if (!await fs.pathExists(outPath)) {
+    const resp = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+    await fs.writeFile(outPath, resp.data);
+  }
+  return outPath;
+}
 
-router.get("/api/pdf-proxy", async (req, res) => {
+async function convertOfficeToPdf(filePath) {
+  const task = ilovepdf.newTask('officepdf');
+  await task.start();
+  await task.addFile(new ILovePDFFile(filePath));
+  await task.process();
+  const pdfBuf = await task.download();
+  return pdfBuf;
+}
+
+router.get("/api/file-proxy", async (req, res) => {
   try {
     const fileUrl = req.query.url;
     if (!fileUrl) return res.status(400).send("Missing url");
 
-    const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
+    const ext = path.extname(new URL(fileUrl).pathname).toLowerCase();
+    let pdfBuffer;
+
+    if (ext === ".pdf") {
+      const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
+      pdfBuffer = response.data;
+    } else if ([".doc", ".docx", ".ppt", ".pptx"].includes(ext)) {
+      const officePath = await downloadToTemp(fileUrl);
+      pdfBuffer = await convertOfficeToPdf(officePath);
+      await fs.remove(officePath);
+    } else {
+      return res.status(415).send("Unsupported file type");
+    }
     res
       .header("Access-Control-Allow-Origin", "*")
       .header("Content-Type", "application/pdf")
-      .send(response.data);
+      .send(pdfBuffer);
+
   } catch (err) {
-    console.error(err);
+    console.error("file-proxy error:", err);
     res.sendStatus(500);
   }
 });
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+
 router.post("/api/test-me", async (req, res) => {
   try {
-    const { fileUrl, pageNumber, message } = req.body;
+    let { fileUrl, pageNumber, message } = req.body;
 
     if (!fileUrl) {
       return res.status(400).json({ error: "fileUrl is required." });
     }
 
+    const proxyUrl = `http://localhost:5000/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
+    fileUrl = proxyUrl;
     const fullText = await processFile(fileUrl);
     if (!Array.isArray(fullText) || fullText.length === 0) {
       console.error("error processing the file!");
