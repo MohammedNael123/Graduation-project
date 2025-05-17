@@ -118,8 +118,59 @@ const createCourses = async (name,userId)=>{
     }
 };
 
+const SaveMessages = async (input, aiMessage, fileId, userId) => {
+  try {
+    const { data: userMessage, error: errorUserMessage } = await supabase
+      .from("messages")
+      .insert({ message_text: input, sender: "user" })
+      .select()
+      .single();
+
+    if (errorUserMessage) {
+      console.log("Error inserting user message:", errorUserMessage.message);
+      return false;
+    }
+
+    const { data: aiMessageData, error: errorAiMessage } = await supabase
+      .from("messages")
+      .insert({ message_text: aiMessage, sender: "ai" })
+      .select()
+      .single();
+
+    if (errorAiMessage) {
+      console.log("Error inserting AI message:", errorAiMessage.message);
+      return false;
+    }
+
+    const { error: fileUserMessageError } = await supabase
+      .from("pdf_messages")
+      .insert({ pdf_file_id: fileId, message_id: userMessage.id });
+
+    if (fileUserMessageError) {
+      console.log("Error linking user message to file:", fileUserMessageError.message);
+      return false;
+    }
+
+    const { error: fileAiMessageError } = await supabase
+      .from("pdf_messages")
+      .insert({ pdf_file_id: fileId, message_id: aiMessageData.id });
+
+    if (fileAiMessageError) {
+      console.log("Error linking AI message to file:", fileAiMessageError.message);
+      return false;
+    }
+
+    return true;
+
+  } catch (error) {
+    console.log("Unexpected error while saving messages:", error);
+    return false;
+  }
+};
+
 
 module.exports = {
     uploadfiledpx,
-    createCourses
+    createCourses,
+    SaveMessages
 }

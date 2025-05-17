@@ -1,11 +1,13 @@
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const processFile = require("../getTxtFromFile/extTextToTestMe.js");
 const path = require("path");
 const fs = require("fs-extra");
 const { URL } = require('url');
+const functions = require("../../Functions.js")
 
 const ILovePDFApi  = require('@ilovepdf/ilovepdf-nodejs');
 const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
@@ -18,6 +20,12 @@ const ilovepdf = new ILovePDFApi(
 const router = express.Router();
 router.use(cors());
 router.use(express.json());
+router.use(session({
+  secret:"my secret",
+  resave: false,
+  saveUninitialized:true,
+  cookie:{secure:false}
+}));
 
 async function downloadToTemp(fileUrl) {
   const parsed = new URL(fileUrl);
@@ -73,14 +81,15 @@ router.get("/api/file-proxy", async (req, res) => {
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/test-me", async (req, res) => {
+  const userId = req.session.user?.id;
   try {
-    let { fileUrl, pageNumber, message } = req.body;
+    let { fileUrl, fileId, pageNumber, message } = req.body;
 
     if (!fileUrl) {
       return res.status(400).json({ error: "fileUrl is required." });
     }
 
-    const proxyUrl = `http://localhost:5000/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
+    const proxyUrl = `https://graduation-project-c7pi.onrender.com/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
     fileUrl = proxyUrl;
     const fullText = await processFile(fileUrl);
     if (!Array.isArray(fullText) || fullText.length === 0) {
@@ -88,7 +97,7 @@ router.post("/api/test-me", async (req, res) => {
       return res.status(500).json({ error: "Failed to process file." });
     }
 
-    const discussion = await generateDiscussion(fullText, pageNumber, message);
+    const discussion = await generateDiscussion(fullText, fileId, pageNumber, message, userId);
 
     return res.json({ reply: discussion });
   } catch (err) {
@@ -97,7 +106,7 @@ router.post("/api/test-me", async (req, res) => {
   }
 });
 
-async function generateDiscussion(fullText, pageNumber, message) {
+async function generateDiscussion(fullText, fileId, pageNumber, message, userId) {
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-thinking-exp-01-21",
@@ -137,6 +146,12 @@ async function generateDiscussion(fullText, pageNumber, message) {
 
     const result = await model.generateContent(prompt);
     const rawText = await result.response.text();
+    const insertingMessage = await functions.SaveMessages(message, rawText, fileId, userId);
+    if(!insertingMessage){
+      console.log("Error when using the SaveMessage function!");
+    }else{
+      console.log("the message is Saved!");
+    }
     console.log(rawText);
     return rawText;
   } catch (err) {

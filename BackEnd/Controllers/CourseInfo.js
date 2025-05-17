@@ -15,12 +15,7 @@ router.use(session({
 }));
 
 // Middleware for session
-router.use(session({
-    secret: "your_secret_key", // Change this to a strong secret
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true in production with HTTPS
-}));
+
 
 // 
 router.get("/getCourses", async (req, res) => {
@@ -110,6 +105,53 @@ router.get("/getfiles", async (req, res) => {
     }
 });
 
+router.get("/getMessages", async (req, res) => {
+    const fileId = req.query.file;
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+        console.log("must login!");
+        return res.status(401).json("must be logged in");
+    }
+
+    try {
+        // جلب message_id المرتبطة بالملف
+        const { data: pdfMessages, error: errorPdfMessages } = await supabase
+            .from("pdf_messages")
+            .select("message_id")
+            .eq("pdf_file_id", fileId);
+
+        if (errorPdfMessages) {
+            console.log("No Messages or error while fetching Message IDs");
+            return res.status(404).json({ error: "No messages found for this file" });
+        }
+
+        const messagesId = pdfMessages.map(item => item.message_id);
+
+        // جلب نص الرسالة ونوع المرسل (sender) لكل رسالة
+        const { data: dataMessages, error: errorMessages } = await supabase
+            .from("messages")
+            .select("message_text, sender")
+            .in("id", messagesId);
+
+        if (errorMessages) {
+            console.log("Error fetching messages from messages");
+            return res.status(500).json({ error: "Error fetching message details" });
+        }
+
+        // تجهيز البيانات للفرونت مع sender
+        const organisedMessages = dataMessages.map(message => ({
+            message: message.message_text,
+            sender: message.sender,  // user or ai
+        }));
+
+        return res.json(organisedMessages);
+
+    } catch (error) {
+        console.log("Unexpected error:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 
 // Start server
