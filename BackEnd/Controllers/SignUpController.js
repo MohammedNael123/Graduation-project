@@ -28,7 +28,6 @@ router.post("/sign_up", async (req,res)=>{
         options: {
             data: {
                 full_name: name,
-                avatar_url: null,
             }
         }
     });
