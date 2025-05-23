@@ -1,80 +1,40 @@
-require('dotenv').config();
-const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
-const { Dropbox } = require('dropbox');
+// dropboxTokenManager.js
+const axios = require("axios");
 
-const dbx = new Dropbox({
-  clientId: process.env.DROPBOX_CLIENT_ID,
-  fetch: fetch
-});
+const refresh_token = process.env.DROPBOX_REFRESH_TOKEN;
+const client_id = process.env.DROPBOX_CLIENT_ID;
+const client_secret = process.env.DROPBOX_CLIENT_SECRET;
 
-if (process.env.DROPBOX_REFRESH_TOKEN) {
-  dbx.auth.setRefreshToken(process.env.DROPBOX_REFRESH_TOKEN);
-}
+let dropboxAccessToken = null;
 
-async function updateEnvFile(key, value) {
-  const envPath = path.resolve(__dirname, '.env');
-  let envContents = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
-  const lines = envContents.split('\n');
-  let found = false;
+async function refreshDropboxToken() {
+  const params = new URLSearchParams();
+  params.append("grant_type", "refresh_token");
+  params.append("refresh_token", refresh_token);
 
-  const updatedLines = lines.map(line => {
-    if (line.startsWith(`${key}=`)) {
-      found = true;
-      return `${key}=${value}`;
-    }
-    return line;
-  });
+  const authHeader = Buffer.from(`${client_id}:${client_secret}`).toString("base64");
 
-  if (!found) {
-    updatedLines.push(`${key}=${value}`);
-  }
-
-  fs.writeFileSync(envPath, updatedLines.join('\n'));
-}
-
-async function checkAndRefreshToken() {
   try {
-    // Verify current access token
-    if (process.env.DPX_TOKEN) {
-      dbx.setAccessToken(process.env.DPX_TOKEN);
-      await dbx.usersGetCurrentAccount();
-      console.log('DPX token is valid');
-      return true;
-    }
-    throw new Error('No DPX token found');
+    const response = await axios.post("https://api.dropbox.com/oauth2/token", params, {
+      headers: {
+        Authorization: `Basic ${authHeader}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    dropboxAccessToken = response.data.access_token;
+    console.log("✅ Dropbox token refreshed:", new Date().toISOString());
+
   } catch (error) {
-    if (error.status === 401 || error.message.includes('No DPX token')) {
-      console.log('Attempting token refresh...');
-      
-      try {
-        const response = await dbx.auth.refreshAccessToken();
-        const newAccessToken = response.result.access_token;
-        
-        // Update environment variables
-        await updateEnvFile('DPX_TOKEN', newAccessToken);
-        console.log('Successfully refreshed DPX token');
-        
-        // Update Dropbox instance with new token
-        dbx.setAccessToken(newAccessToken);
-        return true;
-      } catch (refreshError) {
-        console.error('Failed to refresh DPX token:', refreshError);
-        return false;
-      }
-    }
-    
-    console.error('Error verifying DPX token:', error);
-    return false;
+    console.error("❌ Error refreshing Dropbox token:", error.response?.data || error.message);
   }
 }
 
-// Initial check and schedule every 3 hours
-checkAndRefreshToken().then(success => {
-  if (success) {
-    setInterval(checkAndRefreshToken, 3 * 60 * 60 * 1000); // 3 hours
-  } else {
-    console.error('Initial token check failed. Please check your refresh token.');
-  }
-});
+function getDropboxToken() {
+  return dropboxAccessToken;
+}
+
+module.exports = {
+  refreshDropboxToken,
+  getDropboxToken,
+};

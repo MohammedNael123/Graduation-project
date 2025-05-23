@@ -17,6 +17,15 @@ const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
 const UserProfile = require("./Controllers/userprofile.js");
 
+//For Dropbox Refresh Token 
+const { refreshDropboxToken } = require("./updateDPXtoken");
+//
+// Immediately refresh token on server start
+refreshDropboxToken();
+
+// Refresh token every 3 hours (3 * 60 * 60 * 1000 ms)
+setInterval(refreshDropboxToken, 3 * 60 * 60 * 1000);
+
 const app = express();
 //app.use(cookieParser());
 
