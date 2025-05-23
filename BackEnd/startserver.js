@@ -18,10 +18,13 @@ const majorcheck = require("./Controllers/AiTools/major check12.js");
 const UserProfile = require("./Controllers/userprofile.js");
 
 //For Dropbox Refresh Token 
-const { refreshDropboxToken } = require("./updateDPXtoken");
+const { refreshDropboxToken } = require("./updateDPXtoken.js");
+const { isTokenValid } = require("./Functions.js")
 //
 // Immediately refresh token on server start
+isTokenValid();
 refreshDropboxToken();
+isTokenValid();
 
 // Refresh token every 3 hours (3 * 60 * 60 * 1000 ms)
 setInterval(refreshDropboxToken, 3 * 60 * 60 * 1000);
