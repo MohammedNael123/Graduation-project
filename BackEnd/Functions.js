@@ -172,5 +172,6 @@ const SaveMessages = async (input, aiMessage, fileId, userId) => {
 module.exports = {
     uploadfiledpx,
     createCourses,
-    SaveMessages
+    SaveMessages,
+    isTokenValid
 }

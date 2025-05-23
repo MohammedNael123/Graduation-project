@@ -19,7 +19,7 @@ const UserProfile = require("./Controllers/userprofile.js");
 
 //For Dropbox Refresh Token 
 const { refreshDropboxToken } = require("./updateDPXtoken.js");
-const { isTokenValid } = require("./Functions.js")
+const { isTokenValid } = require("./Functions")
 //
 // Immediately refresh token on server start
 isTokenValid();
