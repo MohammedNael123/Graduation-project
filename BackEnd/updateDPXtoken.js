@@ -1,9 +1,9 @@
 // dropboxTokenManager.js
 const axios = require("axios");
 
-const refresh_token = process.env.DROPBOX_REFRESH_TOKEN;
-const client_id = process.env.DROPBOX_CLIENT_ID;
-const client_secret = process.env.DROPBOX_CLIENT_SECRET;
+const refresh_token = process.env.DPX_REFRESH_TOKEN;
+const client_id = process.env.DPX_CLIENT_ID;
+const client_secret = process.env.DPX_CLIENT_SECRET;
 
 let dropboxAccessToken = null;
 
