@@ -39,20 +39,22 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
   }
 
   try {
-    await functions.uploadfiledpx(courseId, file);
-
+    const File = await functions.uploadfiledpx(courseId, file);
+    if(File){
     // Update Supabase timestamp
     const { error } = await supabase
       .from('courses')
       .update({ updated_at: new Date() })
       .eq('id', courseId);
     if (error) throw error;
+    }
+    else return 0;
 
     // Optional: delete temp file after upload
     await fs.remove(file.path);
     console.log("Temp file deleted:", file.path);
-
-    return res.status(200).json({ message: "File uploaded successfully." });
+    
+    return res.status(200).json({ message: "File uploaded successfully." , result:1});
 
   } catch (error) {
     console.error("Upload error:", error);

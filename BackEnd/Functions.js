@@ -75,9 +75,10 @@ const uploadfiledpx = async (courseId,file)=>{
             }
             console.log("shared link : " , sharedlink,data[0].id);
         });
-        return true;
+        return 1;
     }catch(err){
         console.log("error uploading ❌",err);
+        return 0;
     }
     });
 };
