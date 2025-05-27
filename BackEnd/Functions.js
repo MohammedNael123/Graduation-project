@@ -91,7 +91,7 @@ const createCourses = async (name,userId)=>{
            throw new Error("not valid token ❌");
         }
 
-        const { data , error } = await supabase.from("courses")
+        const { data , error } = await supabase.from("UserCourses")
         .insert({name:name})
         .select();
 

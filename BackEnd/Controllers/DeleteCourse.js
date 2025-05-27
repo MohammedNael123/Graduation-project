@@ -83,7 +83,7 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
     }
 
     const { error: deleteCourseErr } = await supabase
-      .from("courses")
+      .from("UserCourses")
       .delete()
       .match({ id: courseId });
 

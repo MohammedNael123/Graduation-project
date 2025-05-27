@@ -43,7 +43,7 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
     if(File){
     // Update Supabase timestamp
     const { error } = await supabase
-      .from('courses')
+      .from('UserCourses')
       .update({ updated_at: new Date() })
       .eq('id', courseId);
     if (error) throw error;

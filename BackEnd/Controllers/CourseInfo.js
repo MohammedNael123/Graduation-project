@@ -44,7 +44,7 @@ router.get("/getCourses", async (req, res) => {
 
         // Get course details from courses table
         const { data: courses, error: courseError } = await supabase
-            .from("courses")
+            .from("UserCourses")
             .select("id, name") // Select the needed columns
             .in("id", courseIds); // Fetch courses that match the user's courses
 
