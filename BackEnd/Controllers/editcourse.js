@@ -22,7 +22,7 @@ router.post("/EditCourseName", async (req, res) => {
     }
   
     const { error: errorWhileEditing } = await supabase
-      .from("courses")
+      .from("UserCourses")
       .update({ name: newName })
       .eq("id", courseId);
   
