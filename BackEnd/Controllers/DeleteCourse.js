@@ -42,7 +42,7 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
     if (fileIds.length > 0) {
       
       const { data: pdfRows, error: metaErr } = await supabase
-        .from("pdf_files")
+        .from("uploaded_materials")
         .select("id, dropbox_path")
         .in("id", fileIds);
 
@@ -62,12 +62,12 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
       }
 
       const { error: deleteFilesErr } = await supabase
-        .from("pdf_files")
+        .from("uploaded_materials")
         .delete()
         .in("id", fileIds);
 
       if (deleteFilesErr) {
-        console.error("Error deleting pdf_files rows:", deleteFilesErr);
+        console.error("Error deleting uploaded_materials rows:", deleteFilesErr);
         return res.status(500).json({ error: "Failed to delete PDF entries." });
       }
     }

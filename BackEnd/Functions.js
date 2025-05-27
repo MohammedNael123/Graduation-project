@@ -59,7 +59,7 @@ const uploadfiledpx = async (courseId,file)=>{
     
             let sharedlink = sharedlinkres.result.url.toString();
             sharedlink = sharedlink.slice(0,-1)+"1";
-            const {data , error } = await supabase.from("pdf_files").insert({"file_url":sharedlink,"dropbox_path":`/JABER/Darsni_web/${uniqueFileName}`}).select("id");
+            const {data , error } = await supabase.from("uploaded_materials").insert({"file_url":sharedlink,"dropbox_path":`/JABER/Darsni_web/${uniqueFileName}`}).select("id");
             if(error){
                 console.log("error : ",error)
             }

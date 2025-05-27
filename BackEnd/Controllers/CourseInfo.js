@@ -81,12 +81,12 @@ router.get("/getfiles", async (req, res) => {
         const fileIds = coursesFiles.map(item => item.pdf_file_id);
 
         const { data: dataFiles, error: errorFile } = await supabase
-            .from("pdf_files")
+            .from("uploaded_materials")
             .select("id, file_url")
             .in("id", fileIds);
 
         if (errorFile || !dataFiles) {
-            console.log("Error fetching files from pdf_files");
+            console.log("Error fetching files from uploaded_materials");
             return res.status(500).json({ error: "Error fetching file details" });
         }
 
