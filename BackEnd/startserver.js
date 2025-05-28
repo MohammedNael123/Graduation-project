@@ -1,11 +1,11 @@
 const express = require("express");
 const cors = require('cors');
 const session = require("express-session");
-const sign_up = require("./Controllers/UserContollers/SignUpController");
-const log_in = require("./Controllers/UserContollers/LogInController");
-const User = require("./Controllers/UserContollers/UserController");
-const logout = require("./Controllers/UserContollers/LogOutController");
-const createCourese = require("./Controllers/CoursesControllers/createCourse");
+const sign_up = require("./Controllers/UserContollers/SignUpController.js");
+const log_in = require("./Controllers/UserContollers/LogInController.js");
+const User = require("./Controllers/UserContollers/UserController.js");
+const logout = require("./Controllers/UserContollers/LogOutController.js");
+const createCourese = require("./Controllers/CoursesControllers/createCourse.js");
 //const Dashboard = require("../BackEnd/Controllers/CoursesControllers/");
 const genQuiz = require('./Controllers/AiTools/Generate-quiz.js');
 const genTimeTable = require('./Controllers/AiTools/Generate-TimeTable.js');
@@ -48,17 +48,17 @@ app.use(cors({
   credentials: true
 }));
 
-app.use((req,res,next)=>{
-  if(!req.session.user){
-    req.session.user ={
-      id: "",
-      email: "",
-      name: "",
-    } 
-    console.log('Session initialized with default values');
-  }
-  next();
-});
+// app.use((req,res,next)=>{
+//   if(!req.session.user){
+//     req.session.user ={
+//       id: "",
+//       email: "",
+//       name: "",
+//     } 
+//     console.log('Session initialized with default values');
+//   }
+//   next();
+// });
 
 app.use("/" , sign_up);
 app.use("/" , log_in);
