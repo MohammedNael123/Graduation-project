@@ -3,14 +3,14 @@ const Dropbox = require("dropbox");
 const fs = require("fs-extra");
 const multer = require("multer");
 const path = require("path");
-const functions = require("../Functions");
+const functions = require("../Utilitis/Functions.js");
 const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const dpx = new Dropbox.Dropbox({ accessToken: process.env.DPX_TOKEN, fetch: fetch });
 
 const TMP_DIR = "/tmp";
-fs.ensureDirSync(TMP_DIR); // Ensure /tmp exists
+fs.ensureDirSync(TMP_DIR); 
 
 const router = express();
 router.use(express.json());
@@ -41,7 +41,6 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
   try {
     const File = await functions.uploadfiledpx(courseId, file);
     if(File){
-    // Update Supabase timestamp
     const { error } = await supabase
       .from('UserCourses')
       .update({ updated_at: new Date() })
@@ -50,7 +49,6 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
     }
     else return 0;
 
-    // Optional: delete temp file after upload
     await fs.remove(file.path);
     console.log("Temp file deleted:", file.path);
     

@@ -9,7 +9,6 @@ router.use(express.json());
 
 
 router.post("/log_in", async (req, res) => {
-  console.log("Login request:", req.body);
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -31,8 +30,6 @@ router.post("/log_in", async (req, res) => {
       return res.status(500).json({ message: "Unexpected error: No user data returned." });
     }
 
-    console.log("User logged in:", data.user.id);
-
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("full_name")
@@ -44,15 +41,11 @@ router.post("/log_in", async (req, res) => {
       return res.status(500).json({ message: "Failed to fetch user profile." });
     }
 
-    console.log("User full name:", profile.full_name);
-
     req.session.user = {
       id: data.user.id,
       email: data.user.email,
       name: profile.full_name,
     };
-
-    console.log("Session info:", req.session.user);
 
     return res.json({
       message: "Login successful!",

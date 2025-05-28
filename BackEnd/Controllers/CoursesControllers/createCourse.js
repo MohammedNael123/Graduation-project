@@ -1,7 +1,7 @@
 const express = require("express");
-const session = require("express-session");
+//const session = require("express-session");
 const router = express.Router();
-const functions = require("../Functions.js");
+const functions = require("../Utilitis/Functions.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs-extra");
@@ -10,15 +10,16 @@ const TMP_DIR = process.env.TMP_DIR || "/tmp/";
 fs.ensureDirSync(TMP_DIR);
 
 router.use(express.json());
-router.use(session({
-  secret: "my secret",
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-  }
-}));
+// router.use(session({
+//   secret: "my secret",
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {
+//     secure: true,            
+//     sameSite: "none"         
+//   }
+// }));
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, TMP_DIR),
@@ -33,6 +34,7 @@ const upload = multer({ storage });
 router.post("/createCourse", upload.single("file"), async (req, res) => {
   const user = req.session.user;
   if (!user || !user.id) {
+    console.error("User Not Logged in!");
     return res.status(401).json({ message: "Please login first!" });
   }
 
@@ -43,15 +45,14 @@ router.post("/createCourse", upload.single("file"), async (req, res) => {
   }
 
   try {
-    const course = await functions.createCourses(CourseName, user.id);
-    if (!course) {
+    const courseId = await functions.createCourses(CourseName, user.id);
+    if (!courseId) {
       return res.status(500).send("Something went wrong!");
     }
 
     const filePath = path.join(TMP_DIR, file.filename);
-    await functions.uploadfiledpx(course, file);
+    await functions.uploadfiledpx(courseId, file);
 
-    // Delete the temp file after uploading
     fs.unlink(filePath, (err) => {
       if (err) console.error("Failed to delete temp file:", err);
     });

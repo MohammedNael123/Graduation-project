@@ -73,7 +73,6 @@ async function getTextFromFile(filePath) {
 
 async function processFile(fileUrl) {
   try {
-    //get from supabase
     const filepath = await getfilepath(fileUrl);
     const fileText = await getTextFromFile(filepath);
     fs.remove(filepath);

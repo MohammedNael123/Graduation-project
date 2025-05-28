@@ -9,9 +9,8 @@ const router = express.Router();
 router.use(cors());
 router.use(express.json());
 
-const genAI = new GoogleGenerativeAI("AIzaSyAIzGbi2qZcr6KMBvCiUC26NNHbhRun0M8");
+const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
 
-// Endpoint to generate the quiz
 router.post("/api/generate-quiz", async (req, res) => {
   try {
     const { fileUrl, NumberOfQuestion } = req.body;
@@ -64,13 +63,11 @@ Format:
     const result = await model.generateContent(prompt);
     const rawText = await result.response.text();
 
-    // تنظيف أولي
     let cleanedText = rawText
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
 
-    // محاولة إصلاح JSON
     const repairedJSON = jsonrepair(cleanedText);
 
     const quizData = JSON.parse(repairedJSON);

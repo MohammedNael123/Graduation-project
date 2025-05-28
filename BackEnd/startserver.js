@@ -1,25 +1,25 @@
 const express = require("express");
 const cors = require('cors');
 const session = require("express-session");
-const sign_up = require("./Controllers/SignUpController");
-const log_in = require("../BackEnd/Controllers/LogInController");
-const User = require("../BackEnd/Controllers/UserController");
-const logout = require("../BackEnd/Controllers/LogOutController");
-const createCourese = require("../BackEnd/Controllers/createCourse");
-const Dashboard = require("../BackEnd/Controllers/CourseInfo.js");
+const sign_up = require("./Controllers/UserContollers/SignUpController");
+const log_in = require("../BackEnd/Controllers/UserContollers/LogInController");
+const User = require("../BackEnd/Controllers/UserContollers/UserController");
+const logout = require("../BackEnd/Controllers/UserContollers/LogOutController");
+const createCourese = require("../BackEnd/Controllers/CoursesControllers/createCourse");
+//const Dashboard = require("../BackEnd/Controllers/CoursesControllers/");
 const genQuiz = require('./Controllers/AiTools/Generate-quiz.js');
 const genTimeTable = require('./Controllers/AiTools/Generate-TimeTable.js');
-const deletecourse = require("./Controllers/DeleteCourse.js");
-const addFileToCourse = require("./Controllers/FileUploadToDropbox.js");
-const editCourse = require("./Controllers/editcourse.js")
+const deletecourse = require("./Controllers/CoursesControllers/DeleteCourse.js");
+const addFileToCourse = require("./Controllers/FilesControllers/FileUploadToDropbox.js");
+const editCourse = require("./Controllers/CoursesControllers/editcourse.js")
 const generatesummary = require("./Controllers/AiTools/summarization.js");
 const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
-const UserProfile = require("./Controllers/userprofile.js");
+const UserProfile = require("./Controllers/UserContollers/userprofile.js");
 
 //For Dropbox Refresh Token 
-const { refreshDropboxToken } = require("./updateDPXtoken.js");
-const { isTokenValid } = require("./Functions")
+const { refreshDropboxToken } = require("./FilesControllers/updateDPXtoken.js");
+const { isTokenValid } = require("./Utilitis/Functions")
 //
 // Immediately refresh token on server start
 isTokenValid();
@@ -39,8 +39,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: true,            // لازم يكون true لأنك تستخدم HTTPS
-    sameSite: "none"         // مهم للسماح بالكوكيز عبر نطاقين مختلفين (cross-site)
+    secure: true,            
+    sameSite: "none"         
   }
 }));
 
@@ -68,7 +68,7 @@ app.use("/" , log_in);
 app.use("/" , User);
 app.use("/" , logout);
 app.use("/" , createCourese);
-app.use("/" , Dashboard);
+//app.use("/" , Dashboard);
 app.use("/" , genQuiz);
 app.use("/" , genTimeTable);
 app.use("/" , deletecourse);

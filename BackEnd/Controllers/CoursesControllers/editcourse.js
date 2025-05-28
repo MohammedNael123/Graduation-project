@@ -6,12 +6,12 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const router = express.Router();
 
-router.use(session({
-  secret: "my secret",
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+// router.use(session({
+//   secret: "my secret",
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: false }
+// }));
 
 router.post("/EditCourseName", async (req, res) => {
     const userId = req.session.user?.id;

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const session = require("express-session");
+//const session = require("express-session");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const processFile = require("../getTxtFromFile/extTextToTestMe.js");
@@ -20,12 +20,12 @@ const ilovepdf = new ILovePDFApi(
 const router = express.Router();
 router.use(cors());
 router.use(express.json());
-router.use(session({
-  secret:"my secret",
-  resave: false,
-  saveUninitialized:true,
-  cookie:{secure:false}
-}));
+// router.use(session({
+//   secret:"my secret",
+//   resave: false,
+//   saveUninitialized:true,
+//   cookie:{secure:false}
+// }));
 
 async function downloadToTemp(fileUrl) {
   const parsed = new URL(fileUrl);
@@ -112,7 +112,6 @@ async function generateDiscussion(fullText, fileId, pageNumber, message, userId)
       model: "gemini-2.0-flash-thinking-exp-01-21",
     });
     const pageText = fullText[pageNumber - 1];
-    console.log("pagenumber is : ", pageNumber);
     const fallbackContext = fullText
       .slice(Math.max(0, pageNumber - 2), pageNumber + 2)
       .join(" | ");
@@ -148,11 +147,8 @@ async function generateDiscussion(fullText, fileId, pageNumber, message, userId)
     const rawText = await result.response.text();
     const insertingMessage = await functions.SaveMessages(message, rawText, fileId, userId);
     if(!insertingMessage){
-      console.log("Error when using the SaveMessage function!");
-    }else{
-      console.log("the message is Saved!");
+      console.error("Error when using the SaveMessage function!");
     }
-    console.log(rawText);
     return rawText;
   } catch (err) {
     console.error(err);

@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(cors());
 router.use(express.json());
 
-const genAI = new GoogleGenerativeAI("AIzaSyAIzGbi2qZcr6KMBvCiUC26NNHbhRun0M8");
+const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
 
 router.post("/api/generate-summarization" , async (req , res) => {
    try { 
@@ -26,18 +26,15 @@ router.post("/api/generate-summarization" , async (req , res) => {
 }); 
 
 function sanitizeHtml(rawText) {
-    // Remove markdown code blocks
     let cleaned = rawText.replace(/```html/gi, '');
     cleaned = cleaned.replace(/```/g, '');
     
-    // Remove newline characters
     cleaned = cleaned.replace(/\n/g, '');
     
-    // Trim whitespace and clean up any residual markdown
     cleaned = cleaned
       .trim()
-      .replace(/^html/, '') // In case response starts with 'html'
-      .replace(/<\/?markdown>/g, ''); // Handle any markdown tags
+      .replace(/^html/, '') 
+      .replace(/<\/?markdown>/g, ''); 
   
     return cleaned;
   }

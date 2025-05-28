@@ -4,13 +4,12 @@ const router = express.Router();
 router.use(express.json());
 
 // تهيئة نموذج Google Generative AI
-const genAI = new GoogleGenerativeAI("AIzaSyAIzGbi2qZcr6KMBvCiUC26NNHbhRun0M8");
+const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
 
 /**
- * دالة للتحقق من صحة التخصص باستخدام Google Generative AI
- * @param {string} major - اسم التخصص
- * @param {string} language - اللغة (ar/en)
- * @returns {Promise<boolean>} - يعيد true إذا كان التخصص معترفًا به
+ * @param {string} major 
+ * @param {string} language 
+ * @returns {Promise<boolean>} 
  */
 async function validateMajor(major, language = "en") {
   try {
@@ -30,21 +29,17 @@ async function validateMajor(major, language = "en") {
   }
 }
 
-/**
- * نقطة النهاية لتعريف التخصص مع التحقق التلقائي
- */
+
 router.post("/api/major-definition", async (req, res) => {
   const { major, language = "en" } = req.body;
 
   try {
-    // التحقق من وجود التخصص
     if (!major || typeof major !== "string") {
       return res.status(400).json({ 
         error: language === "ar" ? "يجب تقديم اسم تخصص صحيح." : "Valid major name is required."
       });
     }
 
-    // التحقق من صحة التخصص
     const isValidMajor = await validateMajor(major, language);
     if (!isValidMajor) {
       return res.status(400).json({
@@ -54,7 +49,6 @@ router.post("/api/major-definition", async (req, res) => {
       });
     }
 
-    // إنشاء المحتوى
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     const prompt = language === "ar" ? 
       `قدم تعريفًا أكاديميًا دقيقًا لتخصص ${major} مع:
@@ -100,21 +94,16 @@ router.post("/api/major-definition", async (req, res) => {
   }
 });
 
-/**
- * نقطة النهاية لإنشاء اختبار التخصص مع التحقق التلقائي
- */
 router.post("/api/generate-test", async (req, res) => {
   const { major, language = "en" } = req.body;
 
   try {
-    // التحقق من وجود التخصص
     if (!major || typeof major !== "string") {
       return res.status(400).json({ 
         error: language === "ar" ? "يجب تقديم اسم تخصص صحيح." : "Valid major name is required."
       });
     }
 
-    // التحقق من صحة التخصص
     const isValidMajor = await validateMajor(major, language);
     if (!isValidMajor) {
       return res.status(400).json({
@@ -124,7 +113,6 @@ router.post("/api/generate-test", async (req, res) => {
       });
     }
 
-    // إنشاء الاختبار
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
     const prompt = language === "ar" ?
       `أنشئ اختبارًا قصيرًا (5 أسئلة فقط) لتخصص ${major}:
@@ -184,15 +172,12 @@ router.post("/api/generate-test", async (req, res) => {
   }
 });
 
-/**
- * دالة لتحليل وتعريف التخصص
- */
+
 function parseMajorDefinition(text, language) {
   try {
     const cleaned = cleanJsonResponse(text);
     const data = JSON.parse(cleaned);
     
-    // التحقق من وجود الحقول الأساسية
     const requiredFields = ["definition", "skills", "careers", "relatedMajors"];
     for (const field of requiredFields) {
       if (!data[field]) {
@@ -220,20 +205,16 @@ function parseMajorDefinition(text, language) {
   }
 }
 
-/**
- * دالة لتحليل أسئلة الاختبار
- */
+
 function parseTestQuestions(text, language) {
   try {
     const cleaned = cleanJsonResponse(text);
     const data = JSON.parse(cleaned);
     
-    // التحقق من وجود الأسئلة
     if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
       throw new Error("No questions found");
     }
 
-    // تقليل الأسئلة إلى 5 فقط للتأكد من التزامن مع الطلب
     const questions = data.questions.slice(0, 5).map(q => ({
       question: q.question,
       options: q.options.slice(0, 4), // تأكيد وجود 4 خيارات فقط
@@ -259,11 +240,8 @@ function parseTestQuestions(text, language) {
   }
 }
 
-/**
- * دالة لتنظيف نص JSON
- */
+
 function cleanJsonResponse(text) {
-  // إزالة أي أحرف غير ضرورية حول JSON
   const jsonStart = text.indexOf('{');
   const jsonEnd = text.lastIndexOf('}') + 1;
   

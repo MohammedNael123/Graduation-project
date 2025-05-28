@@ -12,22 +12,22 @@ const dbx       = new Dropbox({
 
 const router = express.Router();
 router.use(express.json());
-router.use(session({
-  secret: "my secret",
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+// router.use(session({
+//   secret: "my secret",
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: false }
+// }));
 
 router.post("/deleteCourse/:courseId", async (req, res) => {
   try {
     const userId   = req.session.user?.id;
     const courseId = req.params.courseId;
     if (!userId || !courseId) {
+      console.error("User Not Logged in or CourseId is Empty!");
       return res.status(400).json({ error: "Missing user or course ID." });
     }
 
-    
     const { data: filesMeta, error: fetchErr } = await supabase
       .from("weak_courses_pdf_files")
       .select("pdf_file_id")

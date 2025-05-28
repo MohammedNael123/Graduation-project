@@ -16,7 +16,7 @@ const dpx = new Dropbox.Dropbox({accessToken: dpx_token,
 async function isTokenValid(){
     try{
         await dpx.usersGetCurrentAccount();
-        console.log("Token is Valid 👌");
+        console.info("Token is Valid 👌");
         return true;
     }   catch(err){
         if(err.status === 401){
@@ -30,7 +30,6 @@ async function isTokenValid(){
 isTokenValid();
 
 const uploadfiledpx = async (courseId,file)=>{
-    console.log("the uploadfiledpx got request! file : ",file.path);
      fs.readFile(file.path, async (err, fileContent) => { 
         if (err) {
             console.error("Error reading file:", err);
@@ -42,7 +41,7 @@ const uploadfiledpx = async (courseId,file)=>{
     let uniqueFileName = Date.now().toString()+"("+nameOnly+")"+fileExt;
     const validatingToken = await isTokenValid();
     if(!validatingToken){
-        console.log("cant use dropbox the token is expired ❌");
+        console.error("cant use dropbox the token is expired ❌");
         return false;
     }
         
@@ -51,8 +50,6 @@ const uploadfiledpx = async (courseId,file)=>{
             path:`/JABER/Darsni_web/${uniqueFileName}`,
             contents:fileContent
         }).then(res=>{
-            console.log("file uploaded to the dropbox !");
-            console.log("file path : ",file.path);
             return dpx.sharingCreateSharedLinkWithSettings({path:res.result.path_display});
     
         }).then( async (sharedlinkres)=>{
@@ -61,7 +58,7 @@ const uploadfiledpx = async (courseId,file)=>{
             sharedlink = sharedlink.slice(0,-1)+"1";
             const {data , error } = await supabase.from("uploaded_materials").insert({"file_url":sharedlink,"dropbox_path":`/JABER/Darsni_web/${uniqueFileName}`}).select("id");
             if(error){
-                console.log("error : ",error)
+                console.error("error from database : ",error)
             }
     
             const {data : intoweek , error : errorweek } = await supabase
@@ -71,13 +68,12 @@ const uploadfiledpx = async (courseId,file)=>{
                 courses_id: courseId
             });
             if(errorweek){
-                console.log("error while inserting into week_pdf_course",errorweek);
+                console.error("error while inserting into week_pdf_course",errorweek);
             }
-            console.log("shared link : " , sharedlink,data[0].id);
         });
         return 1;
     }catch(err){
-        console.log("error uploading ❌",err);
+        console.error("error uploading ❌",err);
         return 0;
     }
     });
@@ -85,7 +81,7 @@ const uploadfiledpx = async (courseId,file)=>{
 
 const createCourses = async (name,userId)=>{
     try{
-        console.log("name : ",name);
+        console.error("name : ",name);
         const validatingToken = await isTokenValid();
         if(!validatingToken){
            throw new Error("not valid token ❌");
@@ -96,7 +92,7 @@ const createCourses = async (name,userId)=>{
         .select();
 
         if(error || !data){
-            console.log("Error when trying to insert a new course in supabase!");
+            console.error("Error when trying to insert a new course in supabase!");
             return false;
         }
 
@@ -106,7 +102,7 @@ const createCourses = async (name,userId)=>{
         });
 
         if(error){
-            console.log("Error while inserting!");
+            console.error("Error while inserting!");
             return false;
         }
 
@@ -128,7 +124,7 @@ const SaveMessages = async (input, aiMessage, fileId, userId) => {
       .single();
 
     if (errorUserMessage) {
-      console.log("Error inserting user message:", errorUserMessage.message);
+      console.error("Error inserting user message:", errorUserMessage.message);
       return false;
     }
 
@@ -139,7 +135,7 @@ const SaveMessages = async (input, aiMessage, fileId, userId) => {
       .single();
 
     if (errorAiMessage) {
-      console.log("Error inserting AI message:", errorAiMessage.message);
+      console.error("Error inserting AI message:", errorAiMessage.message);
       return false;
     }
 
@@ -148,7 +144,7 @@ const SaveMessages = async (input, aiMessage, fileId, userId) => {
       .insert({ pdf_file_id: fileId, message_id: userMessage.id });
 
     if (fileUserMessageError) {
-      console.log("Error linking user message to file:", fileUserMessageError.message);
+      console.error("Error linking user message to file:", fileUserMessageError.message);
       return false;
     }
 
@@ -157,14 +153,14 @@ const SaveMessages = async (input, aiMessage, fileId, userId) => {
       .insert({ pdf_file_id: fileId, message_id: aiMessageData.id });
 
     if (fileAiMessageError) {
-      console.log("Error linking AI message to file:", fileAiMessageError.message);
+      console.error("Error linking AI message to file:", fileAiMessageError.message);
       return false;
     }
 
     return true;
 
   } catch (error) {
-    console.log("Unexpected error while saving messages:", error);
+    console.error("Unexpected error while saving messages:", error);
     return false;
   }
 };
