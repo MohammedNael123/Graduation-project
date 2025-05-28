@@ -11,7 +11,7 @@ router.use(express.json());
 router.post("/sign_up", async (req, res) => {
     const { name, email, password } = req.body;
     const { data: existingUser, error: userError } = await supabase
-        .from("auth.users")
+        .from("profiles")
         .select("email")
         .eq("email", email)
         .single();
@@ -43,7 +43,5 @@ router.post("/sign_up", async (req, res) => {
         res.json({ message: "Internal Server Error" });
     }
 });
-
-
 
 module.exports = router;
