@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require('cors');
 const session = require("express-session");
 const sign_up = require("./Controllers/UserContollers/SignUpController");
-const log_in = require("../BackEnd/Controllers/UserContollers/LogInController");
-const User = require("../BackEnd/Controllers/UserContollers/UserController");
-const logout = require("../BackEnd/Controllers/UserContollers/LogOutController");
-const createCourese = require("../BackEnd/Controllers/CoursesControllers/createCourse");
+const log_in = require("./Controllers/UserContollers/LogInController");
+const User = require("./Controllers/UserContollers/UserController");
+const logout = require("./Controllers/UserContollers/LogOutController");
+const createCourese = require("./Controllers/CoursesControllers/createCourse");
 //const Dashboard = require("../BackEnd/Controllers/CoursesControllers/");
 const genQuiz = require('./Controllers/AiTools/Generate-quiz.js');
 const genTimeTable = require('./Controllers/AiTools/Generate-TimeTable.js');
@@ -18,19 +18,16 @@ const majorcheck = require("./Controllers/AiTools/major check12.js");
 const UserProfile = require("./Controllers/UserContollers/userprofile.js");
 
 //For Dropbox Refresh Token 
-const { refreshDropboxToken } = require("./FilesControllers/updateDPXtoken.js");
-const { isTokenValid } = require("./Utilitis/Functions")
-//
-// Immediately refresh token on server start
+const { refreshDropboxToken } = require("./Controllers/FilesControllers/updateDPXtoken.js");
+const { isTokenValid } = require("./Controllers/Utilitis/Functions.js")
+
 isTokenValid();
 refreshDropboxToken();
 isTokenValid();
 
-// Refresh token every 3 hours (3 * 60 * 60 * 1000 ms)
 setInterval(refreshDropboxToken, 3 * 60 * 60 * 1000);
 
 const app = express();
-//app.use(cookieParser());
 
 app.set('trust proxy', 1); 
 
