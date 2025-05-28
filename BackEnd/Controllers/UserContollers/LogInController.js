@@ -10,7 +10,6 @@ router.use(express.json());
 
 router.post("/log_in", async (req, res) => {
   const { email , password } = req.body;
-
   if (!email || !password) {
     console.error("email or password is incorrect!");
     return res.status(400).json({ message: "Email and password are required." });
