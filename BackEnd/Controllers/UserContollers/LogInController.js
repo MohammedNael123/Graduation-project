@@ -9,9 +9,10 @@ router.use(express.json());
 
 
 router.post("/log_in", async (req, res) => {
-  const { email, password } = req.body;
+  const { email , password } = req.body;
 
   if (!email || !password) {
+    console.error("email or password is incorrect!");
     return res.status(400).json({ message: "Email and password are required." });
   }
 
@@ -27,6 +28,7 @@ router.post("/log_in", async (req, res) => {
     }
 
     if (!data.user) {
+      console.error("Unexpected error: No user data returned.",data.message);
       return res.status(500).json({ message: "Unexpected error: No user data returned." });
     }
 
