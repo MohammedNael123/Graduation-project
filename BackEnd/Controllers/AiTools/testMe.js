@@ -7,7 +7,7 @@ const processFile = require("../getTxtFromFile/extTextToTestMe.js");
 const path = require("path");
 const fs = require("fs-extra");
 const { URL } = require('url');
-const functions = require("../../Functions.js")
+const functions = require("../Utilitis/Functions.js")
 
 const ILovePDFApi  = require('@ilovepdf/ilovepdf-nodejs');
 const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
