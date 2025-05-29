@@ -85,8 +85,8 @@ router.post("/api/test-me", async (req, res) => {
   try {
     let { fileUrl, fileId, pageNumber, message } = req.body;
 
-    if (!fileUrl) {
-      return res.status(400).json({ error: "fileUrl is required." });
+    if (!fileUrl || !fileId) {
+      return res.status(400).json({ error: "fileUrl is required!. || FileId is required!." });
     }
 
     const proxyUrl = `https://graduation-project-c7pi.onrender.com/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
