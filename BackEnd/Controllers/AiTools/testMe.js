@@ -9,7 +9,7 @@ const fs = require("fs-extra");
 const { URL } = require('url');
 const functions = require("../Utilitis/Functions.js")
 
-const ILovePDFApi  = require('@ilovepdf/ilovepdf-nodejs');
+const ILovePDFApi = require('@ilovepdf/ilovepdf-nodejs');
 const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
 
 const ilovepdf = new ILovePDFApi(
@@ -30,7 +30,7 @@ router.use(express.json());
 async function downloadToTemp(fileUrl) {
   const parsed = new URL(fileUrl);
   const filename = path.basename(parsed.pathname);
-    const tmpDir = path.join(__dirname, "..", "..", "..", "BackEnd", "Controllers", "getTxtFromFile", "tmp");
+  const tmpDir = path.join(__dirname, "..", "..", "..", "BackEnd", "Controllers", "getTxtFromFile", "tmp");
   await fs.ensureDir(tmpDir);
   const outPath = path.join(tmpDir, filename);
   if (!await fs.pathExists(outPath)) {
@@ -116,37 +116,65 @@ async function generateDiscussion(fullText, fileId, pageNumber, message, userId)
       .slice(Math.max(0, pageNumber - 2), pageNumber + 2)
       .join(" | ");
 
+    //   const prompt = `
+    //   You are a multilingual assistant trained to mirror users' linguistic patterns.
+
+    //   Text from page ${pageNumber}:
+    //   ---
+    //   ${pageText}
+    //   ---
+
+    //   Surrounding context:
+    //   ${fallbackContext}
+
+    //   User's query (language/dialect to MIRROR):
+    //   "${message}"
+
+    //  Your requirements:
+    //   1. Respond in EXACTLY the same language/dialect as the query ("${message}") 
+    //   2. Preserve regional expressions, idioms, and syntactic patterns
+    //   3. Provide deep analysis with:
+    //     - Contextual explanations
+    //     - Culturally relevant analogies
+    //     - Logical inferences
+    //   4. If information is unavailable, respond IN USER'S DIALECT:
+    //  "[Dialect-appropriate apology] I can't help with this based on page ${pageNumber}."
+
+    //   Response (mirror ${message}'s dialect/language):
+    //  `;
+
     const prompt = `
-    You are a multilingual assistant trained to mirror users' linguistic patterns.
+You are a multilingual assistant trained to mirror users' linguistic patterns.
 
-    Text from page ${pageNumber}:
-    ---
-    ${pageText}
-    ---
+Source text:
+---
+${pageText}
+---
 
-    Surrounding context:
-    ${fallbackContext}
+Surrounding context:
+${fallbackContext}
 
-    User's query (language/dialect to MIRROR):
-    "${message}"
+User's query (language/dialect to MIRROR):
+"${message}"
 
-   Your requirements:
-    1. Respond in EXACTLY the same language/dialect as the query ("${message}") 
-    2. Preserve regional expressions, idioms, and syntactic patterns
-    3. Provide deep analysis with:
-      - Contextual explanations
-      - Culturally relevant analogies
-      - Logical inferences
-    4. If information is unavailable, respond IN USER'S DIALECT:
-   "[Dialect-appropriate apology] I can't help with this based on page ${pageNumber}."
-  
-    Response (mirror ${message}'s dialect/language):
-   `;
+Your requirements:
+1. Respond in EXACTLY the same language/dialect as the query ("${message}") 
+2. Preserve regional expressions, idioms, and syntactic patterns
+3. Provide deep analysis with:
+   - Contextual explanations
+   - Culturally relevant analogies
+   - Logical inferences
+4. If information is unavailable, respond IN USER'S DIALECT:
+   "[Dialect-appropriate apology] I can't help with this based on the provided text."
+
+Response (mirror ${message}'s dialect/language):
+`;
+
 
     const result = await model.generateContent(prompt);
     const rawText = await result.response.text();
     const insertingMessage = await functions.SaveMessages(message, rawText, fileId, userId);
-    if(!insertingMessage){
+    if (!insertingMessage) {
       console.error("Error when using the SaveMessage function!");
     }
     return rawText;
