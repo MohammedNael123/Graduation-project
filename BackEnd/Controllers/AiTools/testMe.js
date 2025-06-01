@@ -92,6 +92,7 @@ router.post("/api/test-me", async (req, res) => {
     const proxyUrl = `https://graduation-project-c7pi.onrender.com/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
     fileUrl = proxyUrl;
     const fullText = await processFile(fileUrl);
+    console.error("the fulltext : ",fullText,"\nthe message : ",message);
     if (!Array.isArray(fullText) || fullText.length === 0) {
       console.error("error processing the file!");
       return res.status(500).json({ error: "Failed to process file." });
