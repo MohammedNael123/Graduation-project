@@ -85,6 +85,8 @@ router.post("/api/test-me", async (req, res) => {
   try {
     let { fileUrl, fileId, pageNumber, message } = req.body;
 
+    console.log("fileUrl:",fileUrl," fileId:",fileId," pagnumber:",pageNumber," message:",message);
+
     if (!fileUrl || !fileId) {
       return res.status(400).json({ error: "fileUrl is required!. || FileId is required!." });
     }
