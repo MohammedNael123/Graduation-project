@@ -1,14 +1,18 @@
 const axios = require("axios");
+const path = require("path");
 const { getDocument, GlobalWorkerOptions } = require("pdfjs-dist");
 
+// Load the PDF.js worker
 GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
-
 /**
+ * Extracts text content from each page of a PDF buffer (Uint8Array).
  * @param {Uint8Array} pdfBuffer
- * @returns {Promise<string[]>} 
+ * @returns {Promise<string[]>} Array of page text strings.
  */
 async function extractPdfPages(pdfBuffer) {
-  const loadingTask = getDocument({ data: pdfBuffer });
+  const loadingTask = getDocument({ data: pdfBuffer,
+    standardFontDataUrl: path.join(__dirname, "../../../node_modules/pdfjs-dist/standard_fonts/")
+   });
   const pdf = await loadingTask.promise;
   const pages = [];
   for (let i = 1; i <= pdf.numPages; i++) {

@@ -29,7 +29,7 @@ router.use(express.json());
 async function downloadToTemp(fileUrl) {
   const parsed = new URL(fileUrl);
   const filename = path.basename(parsed.pathname);
-  const tmpDir = path.join(__dirname, "..", "..", "..", "BackEnd", "Controllers", "getTxtFromFile", "tmp");
+    const tmpDir = path.join(__dirname, "..", "..", "..", "BackEnd", "Controllers", "getTxtFromFile", "tmp");
   await fs.ensureDir(tmpDir);
   const outPath = path.join(tmpDir, filename);
   if (!await fs.pathExists(outPath)) {
@@ -145,31 +145,31 @@ async function generateDiscussion(fullText, fileId, pageNumber, message, userId)
     //  `;
 
     const prompt = `
-You are a multilingual assistant trained to mirror users' linguistic patterns.
+    You are a multilingual assistant trained to mirror users' linguistic patterns.
 
 Source text:
----
-${pageText}
----
+    ---
+    ${pageText}
+    ---
 
-Surrounding context:
-${fallbackContext}
+    Surrounding context:
+    ${fallbackContext}
 
-User's query (language/dialect to MIRROR):
-"${message}"
+    User's query (language/dialect to MIRROR):
+    "${message}"
 
-Your requirements:
-1. Respond in EXACTLY the same language/dialect as the query ("${message}") 
-2. Preserve regional expressions, idioms, and syntactic patterns
-3. Provide deep analysis with:
-   - Contextual explanations
-   - Culturally relevant analogies
-   - Logical inferences
-4. If information is unavailable, respond IN USER'S DIALECT:
+   Your requirements:
+    1. Respond in EXACTLY the same language/dialect as the query ("${message}") 
+    2. Preserve regional expressions, idioms, and syntactic patterns
+    3. Provide deep analysis with:
+      - Contextual explanations
+      - Culturally relevant analogies
+      - Logical inferences
+    4. If information is unavailable, respond IN USER'S DIALECT:
    "[Dialect-appropriate apology] I can't help with this based on the provided text."
-
-Response (mirror ${message}'s dialect/language):
-`;
+  
+    Response (mirror ${message}'s dialect/language):
+   `;
 
 
     const result = await model.generateContent(prompt);
