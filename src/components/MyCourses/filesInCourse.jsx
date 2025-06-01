@@ -27,11 +27,7 @@ const Test = () => {
                 const processedFiles = res.data.map(file => ({
                     ...file,
                     filename: file.url.split('/').pop().split('?')[0],
-<<<<<<< HEAD
-                    uploadedAt: new Date().toLocaleDateString() 
-=======
-                    uploadedAt: new Date().toLocaleDateString() // Add actual upload date from API if available
->>>>>>> 6670a89291b1c3e98dc67d258d9472f5b2c16ac3
+                   uploadedAt: new Date().toLocaleDateString() 
                 }));
                 setFiles(processedFiles);
             } catch (err) {
@@ -190,7 +186,7 @@ const Test = () => {
                                     filename={file.filename}
                                     url={file.url}
                                     uploadedAt={file.uploadedAt}
-                                    onTestMe={() => navigate("/TestMe", { state: { fileUrl: file.url } })}
+                                    onTestMe={() => navigate("/TestMe", { state: { fileUrl: file.url,fileId: file.id } })}
                                     getFileIcon={getFileIcon}
                                 />
                             ))}

@@ -81,26 +81,19 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/test-me", async (req, res) => {
   const userId = req.session.user?.id;
-  console.log("inside the testme api ________________________!!!!!!!!!!!!00");
   try {
     let { fileUrl, fileId, pageNumber, message } = req.body;
-
-    console.log("fileUrl:",fileUrl," fileId:",fileId," pagnumber:",pageNumber," message:",message);
 
     if (!fileUrl || !fileId) {
       return res.status(400).json({ error: "fileUrl is required!. || FileId is required!." });
     }
-    console.log("isinde the try 1");
     const proxyUrl = `https://graduation-project-c7pi.onrender.com/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
     fileUrl = proxyUrl;
-    console.log("isinde the try 1");
     const fullText = await processFile(fileUrl);
-    console.log("the fulltext : ",fullText,"\nthe message : ",message);
     if (!Array.isArray(fullText) || fullText.length === 0) {
       console.error("error processing the file!");
       return res.status(500).json({ error: "Failed to process file." });
     }
-    console.log("after the try _____________________________!!!!!!");
     const discussion = await generateDiscussion(fullText, fileId, pageNumber, message, userId);
 
     return res.json({ reply: discussion });
