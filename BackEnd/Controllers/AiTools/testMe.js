@@ -1,12 +1,11 @@
 const express = require("express");
 const cors = require("cors");
-//const session = require("express-session");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const processFile = require("../getTxtFromFile/extTextToTestMe.js");
 const path = require("path");
 const fs = require("fs-extra");
 const { URL } = require('url');
+const processFile = require("../getTxtFromFile/extTextToTestMe");
 const functions = require("../Utilitis/Functions.js")
 
 const ILovePDFApi = require('@ilovepdf/ilovepdf-nodejs');
@@ -82,6 +81,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/test-me", async (req, res) => {
   const userId = req.session.user?.id;
+  console.log("inside the testme api ________________________!!!!!!!!!!!!00");
   try {
     let { fileUrl, fileId, pageNumber, message } = req.body;
 
@@ -97,7 +97,7 @@ router.post("/api/test-me", async (req, res) => {
       console.error("error processing the file!");
       return res.status(500).json({ error: "Failed to process file." });
     }
-
+    console.log("after the try _____________________________!!!!!!");
     const discussion = await generateDiscussion(fullText, fileId, pageNumber, message, userId);
 
     return res.json({ reply: discussion });
