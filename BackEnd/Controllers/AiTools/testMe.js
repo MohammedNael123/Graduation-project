@@ -109,7 +109,7 @@ router.post("/api/test-me", async (req, res) => {
 async function generateDiscussion(fullText, fileId, pageNumber, message, userId) {
   try {
     const model = genAI.getGenerativeModel({
-      model: process.env.GiminiAiModel,
+      model: "gemini-2.0-flash",
     });
     const pageText = fullText[pageNumber - 1];
     const fallbackContext = fullText
