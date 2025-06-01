@@ -39,7 +39,7 @@ function sanitizeHtml(rawText) {
 
 async function generateTimetable(text, startDate, startTime, endDate, endTime) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
+    const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
 
     const prompt = ` 
     You are an AI that must produce a study timetable entirely in HTML with no additional commentary or formatting. Your output should be a complete HTML document that starts with the <!DOCTYPE html> declaration and includes all necessary HTML, head, and body tags.The structure must be like that:

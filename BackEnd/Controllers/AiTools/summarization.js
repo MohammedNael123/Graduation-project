@@ -41,7 +41,7 @@ function sanitizeHtml(rawText) {
 
 async function GenerateSummarization(text, lang) {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
+        const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
 
         const prompt = `
         أنشئ ملخصًا HTML للنص التالي باللغة ${lang} مع الالتزام الصارم بالهيكل التالي:

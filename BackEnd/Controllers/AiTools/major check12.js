@@ -13,7 +13,7 @@ const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
  */
 async function validateMajor(major, language = "en") {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
+    const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
     const prompt = language === "ar" 
       ? `هل "${major}" تخصص أكاديمي معترف به في الجامعات العالمية؟ أجب بـ "نعم" أو "لا" فقط دون أي شرح إضافي.`
       : `Is "${major}" an officially recognized academic major in global universities? Answer with "yes" or "no" only without any additional explanation.`;
@@ -49,7 +49,7 @@ router.post("/api/major-definition", async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
+    const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
     const prompt = language === "ar" ? 
       `قدم تعريفًا أكاديميًا دقيقًا لتخصص ${major} مع:
       1- تعريف واضح (فقرة واحدة)
@@ -113,7 +113,7 @@ router.post("/api/generate-test", async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" });
+    const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
     const prompt = language === "ar" ?
       `أنشئ اختبارًا قصيرًا (5 أسئلة فقط) لتخصص ${major}:
       - 3 أسئلة عن المفاهيم الأساسية
