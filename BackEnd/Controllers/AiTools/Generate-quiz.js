@@ -28,7 +28,7 @@ router.post("/api/generate-quiz", async (req, res) => {
 
 async function generateQuiz(text, numQuestions) {
   try {
-    const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
 Generate a creative, non-duplicated multiple-choice AND true/false quiz from the following text:
