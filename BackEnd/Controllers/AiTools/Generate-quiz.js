@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.use(cors());
 router.use(express.json());
-
+console.info("gimini key : ",process.env.GiminiApiKey);
 const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
 
 router.post("/api/generate-quiz", async (req, res) => {
