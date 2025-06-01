@@ -88,9 +88,10 @@ router.post("/api/test-me", async (req, res) => {
     if (!fileUrl || !fileId) {
       return res.status(400).json({ error: "fileUrl is required!. || FileId is required!." });
     }
-
+    console.log("isinde the try 1");
     const proxyUrl = `https://graduation-project-c7pi.onrender.com/api/file-proxy?url=${encodeURIComponent(fileUrl)}`;
     fileUrl = proxyUrl;
+    console.log("isinde the try 1");
     const fullText = await processFile(fileUrl);
     console.log("the fulltext : ",fullText,"\nthe message : ",message);
     if (!Array.isArray(fullText) || fullText.length === 0) {
