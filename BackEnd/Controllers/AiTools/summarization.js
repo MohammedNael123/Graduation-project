@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(cors());
 router.use(express.json());
 
-const genAI = new GoogleGenerativeAI(process.env.GiminiApiKey);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/generate-summarization" , async (req , res) => {
    try { 
