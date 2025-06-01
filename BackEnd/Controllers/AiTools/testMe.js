@@ -174,7 +174,7 @@ Response (mirror ${message}'s dialect/language):
 
     const result = await model.generateContent(prompt);
     const rawText = await result.response.text();
-    const insertingMessage = await functions.SaveMessages(message, rawText, fileId, userId);
+    const insertingMessage = await functions.SaveMessages(message, rawText, fileId);
     if (!insertingMessage) {
       console.error("Error when using the SaveMessage function!");
     }

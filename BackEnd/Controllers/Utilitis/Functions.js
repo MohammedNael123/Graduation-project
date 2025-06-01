@@ -115,7 +115,7 @@ const createCourses = async (name,userId)=>{
     }
 };
 
-const SaveMessages = async (input, aiMessage, fileId, userId) => {
+const SaveMessages = async (input, aiMessage, fileId) => {
   try {
     const { data: userMessage, error: errorUserMessage } = await supabase
       .from("messages")
