@@ -71,10 +71,10 @@ const uploadfiledpx = async (courseId,file)=>{
                 console.error("error while inserting into week_pdf_course",errorweek);
             }
         });
-        return 1;
+        return true;
     }catch(err){
         console.error("error uploading ❌",err);
-        return 0;
+        return false;
     }
     });
 };
