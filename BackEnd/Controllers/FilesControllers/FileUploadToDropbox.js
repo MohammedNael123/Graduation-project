@@ -46,10 +46,10 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "File upload failed.", result: false });
     }
 
-
     await fs.remove(file.path);
     console.log("Temp file deleted:", file.path);
-    return true;
+
+    return res.status(200).json({ message: "File uploaded successfully.", result: true });
 
   } catch (error) {
     console.error("Upload error:", error);
@@ -60,6 +60,7 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
     });
   }
 });
+
 
 
 module.exports = router;
