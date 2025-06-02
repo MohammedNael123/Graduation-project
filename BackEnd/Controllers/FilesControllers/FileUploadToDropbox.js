@@ -46,12 +46,6 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "File upload failed.", result: false });
     }
 
-    const { error } = await supabase
-      .from('UserCourses')
-      .update({ updated_at: new Date() })
-      .eq('id', courseId);
-
-    if (error) throw error;
 
     await fs.remove(file.path);
     console.log("Temp file deleted:", file.path);
