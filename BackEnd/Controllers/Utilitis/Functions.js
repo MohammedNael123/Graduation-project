@@ -31,7 +31,7 @@ isTokenValid();
 
 const uploadfiledpx = async (courseId, file) => {
   try {
-    const fileContent = await fs.readFile(file.path); // no callback, await the result
+   const fileContent = await fs.promises.readFile(file.path); 
 
     const original = file.originalname;
     const nameOnly = path.parse(original).name;
