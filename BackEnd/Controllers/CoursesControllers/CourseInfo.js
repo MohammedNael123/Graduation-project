@@ -61,7 +61,7 @@ router.get("/getfiles", async (req, res) => {
     const courseId = req.query.course;
     const userId = req.session.user?.id;
     if (!userId) {
-        console.erorr("User Not logged in!");
+        console.error("User Not logged in!");
         return res.status(401).json("Please login!");
     }
 
