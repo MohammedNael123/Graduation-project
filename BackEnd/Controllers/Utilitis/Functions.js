@@ -29,55 +29,65 @@ async function isTokenValid(){
 
 isTokenValid();
 
-const uploadfiledpx = async (courseId,file)=>{
-     fs.readFile(file.path, async (err, fileContent) => { 
-        if (err) {
-            console.error("Error reading file:", err);
-            return res.status(500).json({ error: "Error reading file" });
-        }
+const uploadfiledpx = async (courseId, file) => {
+  try {
+    const fileContent = await fs.readFile(file.path); // no callback, await the result
+
     const original = file.originalname;
     const nameOnly = path.parse(original).name;
     const fileExt = path.extname(file.originalname); 
-    let uniqueFileName = Date.now().toString()+"("+nameOnly+")"+fileExt;
+    const uniqueFileName = Date.now().toString() + "(" + nameOnly + ")" + fileExt;
+
     const validatingToken = await isTokenValid();
-    if(!validatingToken){
-        console.error("cant use dropbox the token is expired ❌");
-        return false;
+    if (!validatingToken) {
+      console.error("Can't use Dropbox, the token is expired ❌");
+      return false;
     }
-        
-    try{
-        await dpx.filesUpload({
-            path:`/JABER/Darsni_web/${uniqueFileName}`,
-            contents:fileContent
-        }).then(res=>{
-            return dpx.sharingCreateSharedLinkWithSettings({path:res.result.path_display});
-    
-        }).then( async (sharedlinkres)=>{
-    
-            let sharedlink = sharedlinkres.result.url.toString();
-            sharedlink = sharedlink.slice(0,-1)+"1";
-            const {data , error } = await supabase.from("uploaded_materials").insert({"file_url":sharedlink,"dropbox_path":`/JABER/Darsni_web/${uniqueFileName}`}).select("id");
-            if(error){
-                console.error("error from database : ",error)
-            }
-    
-            const {data : intoweek , error : errorweek } = await supabase
-            .from("weak_courses_pdf_files")
-            .insert({
-                pdf_file_id: data[0].id,
-                courses_id: courseId
-            });
-            if(errorweek){
-                console.error("error while inserting into week_pdf_course",errorweek);
-            }
-        });
-        return true;
-    }catch(err){
-        console.error("error uploading ❌",err);
-        return false;
-    }
+
+    const uploadRes = await dpx.filesUpload({
+      path: `/JABER/Darsni_web/${uniqueFileName}`,
+      contents: fileContent
     });
+
+    const sharedlinkres = await dpx.sharingCreateSharedLinkWithSettings({
+      path: uploadRes.result.path_display
+    });
+
+    let sharedlink = sharedlinkres.result.url;
+    sharedlink = sharedlink.slice(0, -1) + "1"; // Make link directly downloadable
+
+    const { data, error } = await supabase
+      .from("uploaded_materials")
+      .insert({
+        file_url: sharedlink,
+        dropbox_path: `/JABER/Darsni_web/${uniqueFileName}`
+      })
+      .select("id");
+
+    if (error) {
+      console.error("Error inserting into uploaded_materials:", error);
+      return false;
+    }
+
+    const { error: errorweek } = await supabase
+      .from("weak_courses_pdf_files")
+      .insert({
+        pdf_file_id: data[0].id,
+        courses_id: courseId
+      });
+
+    if (errorweek) {
+      console.error("Error inserting into weak_courses_pdf_files:", errorweek);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Error during upload ❌", err);
+    return false;
+  }
 };
+
 
 const createCourses = async (name,userId)=>{
     try{
