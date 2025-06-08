@@ -9,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 router.get("/counts", async (req, res) => {
   try {
     const { count: usersCount, error: usersError } = await supabase
-      .from("Profiles")
+      .from("profiles")
       .select("*", { count: "exact", head: true });
 
     if (usersError) throw usersError;
