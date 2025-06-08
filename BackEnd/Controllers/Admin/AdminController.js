@@ -36,4 +36,24 @@ router.get("/counts", async (req, res) => {
   }
 });
 
+
+router.get("/get_users", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: true }); 
+
+    if (error) {
+      console.error("Error fetching users:", error.message);
+      return res.status(500).json({ message: "Error fetching users." });
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    res.status(500).json({ message: "Internal Server Error." });
+  }
+});
+
 module.exports = router;
