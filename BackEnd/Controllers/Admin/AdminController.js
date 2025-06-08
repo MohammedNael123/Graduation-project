@@ -56,4 +56,25 @@ router.get("/get_users", async (req, res) => {
   }
 });
 
+
+router.delete("/deleteUser/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const { error } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", userId);
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    return res.json({ success: true, message: `User ${userId} deleted` });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
 module.exports = router;
