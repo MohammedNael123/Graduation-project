@@ -26,7 +26,8 @@ router.get("/profile", async (req, res) => {
   }
   return res.json({
     email: req.session.user.email,
-    name: req.session.user.name
+    name: req.session.user.name,
+    role : req.session.user.name
   });
 
 });
