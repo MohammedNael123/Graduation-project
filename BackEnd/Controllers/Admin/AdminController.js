@@ -79,12 +79,12 @@ router.post("/deleteUser/:id", async (req, res) => {
 
 router.post("/updateUser/:id", async (req, res) => {
   const userId = req.params.id;
-  const { full_name, email } = req.body;
+  const { full_name, email , role } = req.body;
 
   try {
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name, email })
+      .update({ full_name, email , role })
       .eq("id", userId);
 
     if (error) {
