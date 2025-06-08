@@ -57,7 +57,7 @@ router.get("/get_users", async (req, res) => {
 });
 
 
-router.delete("/deleteUser/:id", async (req, res) => {
+router.post("/deleteUser/:id", async (req, res) => {
   const userId = req.params.id;
 
   try {
