@@ -33,7 +33,7 @@ router.post("/log_in", async (req, res) => {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("full_name")
+      .select("full_name , role")
       .eq("id", data.user.id)
       .single();
 
@@ -54,6 +54,7 @@ router.post("/log_in", async (req, res) => {
       user: {
         email: data.user.email,
         full_name: profile.full_name,
+        role: profile.role,
       },
       success: true,
     });
