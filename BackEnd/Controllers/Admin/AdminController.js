@@ -62,7 +62,7 @@ router.delete("/deleteUser/:id", async (req, res) => {
 
   try {
     const { error } = await supabase
-      .from("users")
+      .from("profiles")
       .delete()
       .eq("id", userId);
 
