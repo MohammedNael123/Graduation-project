@@ -27,6 +27,7 @@ router.post("/sign_up", async (req, res) => {
             options: {
                 data: {
                     full_name: name,
+                    role: "student"
                 }
             }
         });
