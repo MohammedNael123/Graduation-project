@@ -77,4 +77,25 @@ router.post("/deleteUser/:id", async (req, res) => {
 });
 
 
+router.post("/updateUser/:id", async (req, res) => {
+  const userId = req.params.id;
+  const { full_name, email } = req.body;
+
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name, email })
+      .eq("id", userId);
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    return res.json({ success: true, message: `User ${userId} updated` });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
 module.exports = router;
