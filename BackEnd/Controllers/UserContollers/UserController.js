@@ -28,7 +28,7 @@ router.get("/profile", async (req, res) => {
 
 });
 
-router.post("/editProfile", async (req, res) => {
+router.post("/update-profile", async (req, res) => {
   try {
     const userId = req.session.user?.id;
     const { newName } = req.body;
