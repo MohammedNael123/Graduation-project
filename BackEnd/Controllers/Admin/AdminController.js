@@ -223,4 +223,25 @@ router.post("/updateCourse/:id", async (req, res) => {
   }
 });
 
+
+router.get("/get_feedback", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("view_user_feedback_with_name")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching user feedback:", error.message);
+      return res.status(500).json({ message: "Error fetching feedback." });
+    }
+
+    return res.json(data);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    return res.status(500).json({ message: "Internal Server Error." });
+  }
+});
+
+
 module.exports = router;
