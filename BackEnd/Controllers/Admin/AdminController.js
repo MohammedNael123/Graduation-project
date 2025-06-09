@@ -42,7 +42,7 @@ router.get("/get_users", async (req, res) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .order("created_at", { ascending: true }); 
+      .order("created_at", { ascending: true });
 
     if (error) {
       console.error("Error fetching users:", error.message);
@@ -79,12 +79,12 @@ router.post("/deleteUser/:id", async (req, res) => {
 
 router.post("/updateUser/:id", async (req, res) => {
   const userId = req.params.id;
-  const { full_name, email , role } = req.body;
+  const { full_name, email, role } = req.body;
 
   try {
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name, email , role })
+      .update({ full_name, email, role })
       .eq("id", userId);
 
     if (error) {
@@ -94,6 +94,51 @@ router.post("/updateUser/:id", async (req, res) => {
     return res.json({ success: true, message: `User ${userId} updated` });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/get_courses", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("Usercourses")
+      .select(`
+        id,
+        name,
+        created_at,
+        weak_profiles_courses!inner (
+          user_id,
+          profiles!inner (
+            id,
+            full_name,
+            email
+          )
+        )
+      `)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching joined data:", error.message);
+      return res.status(500).json({ message: "Error fetching courses." });
+    }
+
+    // Flatten data for frontend convenience
+    const result = data.map((course) => {
+      const link = course.weak_profiles_courses[0];
+      const profile = link?.profiles;
+      return {
+        id: course.id,
+        name: course.name,
+        created_at: course.created_at,
+        user_id: profile?.id,
+        userName: profile?.full_name,
+        userEmail: profile?.email,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    res.status(500).json({ message: "Internal Server Error." });
   }
 });
 
