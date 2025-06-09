@@ -1,14 +1,10 @@
 const express = require("express");
 // const session = require("express-session");
-// const jwt = require("jsonwebtoken");
-// const cookieParser = require("cookie-parser");
-// const { decode } = require("punycode");
 const router = express.Router();
-// const { createClient } = require("@supabase/supabase-js");
-// const supabaseUrl = process.env.SUPABASE_URL;
-// const supabaseKey = process.env.SUPABASE_KEY;
-// const supabase = createClient(supabaseUrl, supabaseKey);
-// const functions = require("../Functions.js");
+const { createClient } = require("@supabase/supabase-js");
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 router.use(express.json());
@@ -32,7 +28,29 @@ router.get("/profile", async (req, res) => {
 
 });
 
+router.post("/editProfile", async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    const { newName } = req.body;
+    if (!userId) {
+      console.error("User Not Logged in!");
+      return res.json({ message: "NOT logged in!" });
+    }
+    const { data, error } = supabase
+      .from("profiles")
+      .update({ full_name: newName })
+      .eq("id", userId);
 
+    if (error) {
+      console.error("Error Editing username!");
+      return res.status(500).json({ message: "Error Editing username!" });
+    }
+  } catch (err) {
+    console.error("Unexpected Error Occurred");
+    return res.status(500).json({ message: "Internal Server Error!" });
+  }
+
+});
 
 
 module.exports = router;
