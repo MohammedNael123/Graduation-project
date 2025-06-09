@@ -8,7 +8,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 
-router.post('/update-profile', async (req, res) => {
+router.post('/update-profile1111', async (req, res) => {
   // 3. التحقق من وجود مستخدم مسجل الدخول عبر الجلسة (Session)
   const sessionUser = req.session.user;
 
