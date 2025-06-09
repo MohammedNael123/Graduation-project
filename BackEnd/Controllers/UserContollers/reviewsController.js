@@ -5,7 +5,6 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Middleware (optional) to ensure user is logged in
 function requireAuth(req, res, next) {
   if (!req.session?.user?.id) {
     return res.status(401).json({ error: "Unauthorized: user not logged in" });
@@ -15,7 +14,7 @@ function requireAuth(req, res, next) {
 
 router.post("/create_review", requireAuth, async (req, res) => {
   const userId = req.session.user.id;
-  const { description, rating, title } = req.body;
+  const { description, rating } = req.body;
 
   if (!description || !rating) {
     return res.status(400).json({ error: "Description and rating are required." });
