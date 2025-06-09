@@ -125,7 +125,7 @@ router.get("/get_courses", async (req, res) => {
   }
 });
 
-router.post("/deleteCourse/:id", async (req, res) => {
+router.post("/Admin_deleteCourse/:id", async (req, res) => {
   const courseId = req.params.id;
 
   if (!courseId) {
