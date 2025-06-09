@@ -148,7 +148,7 @@ router.post("/Admin_deleteCourse/:id", async (req, res) => {
       const courseId = req.params.courseId;
   
       if (!courseId) {
-        return res.status(400).json({ error: "Missing user or course ID." });
+        return res.status(400).json({ error: "Missing course ID." });
       }
   
       const { data: filesMeta, error: fetchErr } = await supabase
