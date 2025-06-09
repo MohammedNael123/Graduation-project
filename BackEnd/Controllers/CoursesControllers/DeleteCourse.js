@@ -1,30 +1,31 @@
 const express = require("express");
 const session = require("express-session");
 const { createClient } = require("@supabase/supabase-js");
-const { Dropbox } = require("dropbox");        
-const fetch = require("node-fetch");     
+const { Dropbox } = require("dropbox");
+const fetch = require("node-fetch");
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-const dbx       = new Dropbox({
+const dbx = new Dropbox({
   accessToken: process.env.DPX_TOKEN,
-  fetch
+  fetch,
 });
 
 const router = express.Router();
 router.use(express.json());
-// router.use(session({
-//   secret: "my secret",
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: { secure: false }
-// }));
+router.use(session({
+  secret: "my secret",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false },
+}));
 
 router.post("/deleteCourse/:courseId", async (req, res) => {
   try {
-    const userId   = req.session.user?.id;
+    console.log("API: DELETE COURSE STARTED");
+    const userId = req.session.user?.id;
     const courseId = req.params.courseId;
+
     if (!userId || !courseId) {
-      console.error("User Not Logged in or CourseId is Empty!");
       return res.status(400).json({ error: "Missing user or course ID." });
     }
 
@@ -39,8 +40,8 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
     }
 
     const fileIds = filesMeta.map(f => f.pdf_file_id);
+
     if (fileIds.length > 0) {
-      
       const { data: pdfRows, error: metaErr } = await supabase
         .from("uploaded_materials")
         .select("id, dropbox_path")
@@ -51,14 +52,26 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
         return res.status(500).json({ error: "Unable to fetch file metadata." });
       }
 
-     console.log("deleted successfuly");
       for (const { dropbox_path } of pdfRows) {
         try {
           await dbx.filesDeleteV2({ path: dropbox_path });
-          
         } catch (dropErr) {
-          console.error(`Failed to delete ${dropbox_path} on Dropbox:`, dropErr);
+          if (dropErr?.status === 409 && dropErr?.error?.error_summary?.startsWith("path_lookup/not_found")) {
+            console.warn(`Dropbox file not found, skipping: ${dropbox_path}`);
+          } else {
+            console.error(`Dropbox delete error for ${dropbox_path}:`, dropErr);
+          }
         }
+      }
+
+      const { error: pdfMsgErr } = await supabase
+        .from("pdf_messages")
+        .delete()
+        .in("pdf_file_id", fileIds);
+
+      if (pdfMsgErr) {
+        console.error("Error deleting from pdf_messages:", pdfMsgErr);
+        return res.status(500).json({ error: "Failed to delete related messages." });
       }
 
       const { error: deleteFilesErr } = await supabase
@@ -92,7 +105,7 @@ router.post("/deleteCourse/:courseId", async (req, res) => {
       return res.status(500).json({ error: "Failed to delete course." });
     }
 
-    return res.status(200).json({ message: "Course (and its PDFs) deleted successfully." });
+    return res.status(200).json({ message: "Course and related files deleted successfully." });
 
   } catch (err) {
     console.error("Unexpected error:", err);
