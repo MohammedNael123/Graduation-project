@@ -21,7 +21,6 @@ router.use(session({
 
 router.post("/deleteCourse/:courseId", async (req, res) => {
   try {
-    console.log("API: DELETE COURSE STARTED");
     const userId = req.session.user?.id;
     const courseId = req.params.courseId;
 
