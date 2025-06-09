@@ -116,5 +116,44 @@ router.get("/get_courses", async (req, res) => {
   }
 });
 
+router.post("/deleteCourse/:id", async (req, res) => {
+  const CourseId = req.params.id;
+
+  try {
+    const { error } = await supabase
+      .from("UserCourses")
+      .delete()
+      .eq("id", CourseId);
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    return res.json({ success: true, message: `Course ${CourseId} deleted` });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+router.post("/updateCourse/:id", async (req, res) => {
+  const CourseId = req.params.id;
+  const { name } = req.body;
+
+  try {
+    const { error } = await supabase
+      .from("UserCourses")
+      .update({ name })
+      .eq("id", CourseId);
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    return res.json({ success: true, message: `Course ${CourseId} updated` });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 module.exports = router;
