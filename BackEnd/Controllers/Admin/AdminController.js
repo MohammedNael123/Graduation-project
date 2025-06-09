@@ -145,10 +145,9 @@ router.get("/get_courses", async (req, res) => {
 
 router.post("/Admin_deleteCourse/:id", async (req, res) => {
    try {
-      const userId = req.session.user?.id;
       const courseId = req.params.courseId;
   
-      if (!userId || !courseId) {
+      if (!courseId) {
         return res.status(400).json({ error: "Missing user or course ID." });
       }
   
@@ -206,16 +205,6 @@ router.post("/Admin_deleteCourse/:id", async (req, res) => {
           console.error("Error deleting uploaded_materials rows:", deleteFilesErr);
           return res.status(500).json({ error: "Failed to delete PDF entries." });
         }
-      }
-  
-      const { error: unlinkErr } = await supabase
-        .from("weak_profiles_courses")
-        .delete()
-        .match({ user_id: userId, course_id: courseId });
-  
-      if (unlinkErr) {
-        console.error("Error unlinking course from user:", unlinkErr);
-        return res.status(500).json({ error: "Failed to unlink course from your profile." });
       }
   
       const { error: deleteCourseErr } = await supabase
