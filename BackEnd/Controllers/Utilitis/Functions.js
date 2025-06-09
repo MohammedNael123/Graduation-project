@@ -54,7 +54,7 @@ const uploadfiledpx = async (courseId, file) => {
     });
 
     let sharedlink = sharedlinkres.result.url;
-    sharedlink = sharedlink.slice(0, -1) + "1"; // Make link directly downloadable
+    sharedlink = sharedlink.slice(0, -1) + "1"; 
 
     const { data, error } = await supabase
       .from("uploaded_materials")

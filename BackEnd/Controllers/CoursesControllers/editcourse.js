@@ -13,7 +13,7 @@ const router = express.Router();
 //   cookie: { secure: false }
 // }));
 
-router.post("/EditCourseName", async (req, res) => {
+router.post("/editCourse", async (req, res) => {
     const userId = req.session.user?.id;
     const { courseId, newName } = req.body;
   

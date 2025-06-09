@@ -45,6 +45,25 @@ router.get("/counts", async (req, res) => {
   }
 });
 
+router.get("/get_courses", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("UserCourses")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error){
+      console.error("Error fetching Courses: ",error.message);
+      return res.status(500).json({ message: "Error fetching Courses." });
+    }
+
+    return res.json(data);
+
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    res.status(500).json({ message: "Internal Server Error." });
+  }
+});
 
 router.get("/get_users", async (req, res) => {
   try {
