@@ -4,6 +4,17 @@ const { createClient } = require("@supabase/supabase-js");
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+const cors = require("cors");
+
+
+
+
+router.use(cors({
+  origin: ["https://darisni.netlify.app", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 
 function requireAuth(req, res, next) {
   if (!req.session?.user?.id) {
