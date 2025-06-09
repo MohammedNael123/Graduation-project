@@ -142,24 +142,9 @@ router.post("/deleteCourse/:id", async (req, res) => {
       return res.status(500).json({ error: "Unable to fetch course files." });
     }
 
-    const fileIds = filesMeta.map(f => f.pdf_file_id);
+    const fileIds = filesMeta?.map(f => f.pdf_file_id) ?? [];
 
     if (fileIds.length > 0) {
-      const { data: pdfRows, error: metaErr } = await supabase
-        .from("uploaded_materials")
-        .select("id, dropbox_path")
-        .in("id", fileIds);
-
-      if (metaErr) {
-        return res.status(500).json({ error: "Unable to fetch file metadata." });
-      }
-
-      for (const { dropbox_path } of pdfRows) {
-        try {
-          await dbx.filesDeleteV2({ path: dropbox_path });
-        } catch { }
-      }
-
       const { error: deleteFilesErr } = await supabase
         .from("uploaded_materials")
         .delete()
@@ -188,13 +173,15 @@ router.post("/deleteCourse/:id", async (req, res) => {
       return res.status(500).json({ error: "Failed to delete course." });
     }
 
-    return res.status(200).json({ message: "Course (and its PDFs) deleted successfully." });
-  } catch {
+    return res.status(200).json({ message: "Course and related data deleted successfully." });
+  } catch (err) {
+    console.error("Unexpected error:", err);
     if (!res.headersSent) {
       return res.status(500).json({ error: "Internal server error." });
     }
   }
 });
+
 
 
 
