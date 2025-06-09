@@ -1,5 +1,4 @@
 const express = require("express");
-// const session = require("express-session");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -7,12 +6,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.use(express.json());
-// router.use(session({
-//   secret: "my secret",
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: { secure: false }
-// }));
+
 
 router.get("/profile", async (req, res) => {
   if (!req.session.user) {
