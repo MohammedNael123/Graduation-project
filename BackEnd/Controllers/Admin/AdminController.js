@@ -1,10 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
-
+const { Dropbox } = require("dropbox");
+const fetch = require("node-fetch");
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+
+const dbx       = new Dropbox({
+  accessToken: process.env.DPX_TOKEN,
+  fetch
+});
+
 
 router.get("/counts", async (req, res) => {
   try {
@@ -117,23 +126,76 @@ router.get("/get_courses", async (req, res) => {
 });
 
 router.post("/deleteCourse/:id", async (req, res) => {
-  const CourseId = req.params.id;
+  const courseId = req.params.id;
+
+  if (!courseId) {
+    return res.status(400).json({ error: "Course ID is required." });
+  }
 
   try {
-    const { error } = await supabase
-      .from("UserCourses")
-      .delete()
-      .eq("id", CourseId);
+    const { data: filesMeta, error: fetchErr } = await supabase
+      .from("weak_courses_pdf_files")
+      .select("pdf_file_id")
+      .eq("courses_id", courseId);
 
-    if (error) {
-      return res.status(400).json({ success: false, message: error.message });
+    if (fetchErr) {
+      return res.status(500).json({ error: "Unable to fetch course files." });
     }
 
-    return res.json({ success: true, message: `Course ${CourseId} deleted` });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: "Server error" });
+    const fileIds = filesMeta.map(f => f.pdf_file_id);
+
+    if (fileIds.length > 0) {
+      const { data: pdfRows, error: metaErr } = await supabase
+        .from("uploaded_materials")
+        .select("id, dropbox_path")
+        .in("id", fileIds);
+
+      if (metaErr) {
+        return res.status(500).json({ error: "Unable to fetch file metadata." });
+      }
+
+      for (const { dropbox_path } of pdfRows) {
+        try {
+          await dbx.filesDeleteV2({ path: dropbox_path });
+        } catch { }
+      }
+
+      const { error: deleteFilesErr } = await supabase
+        .from("uploaded_materials")
+        .delete()
+        .in("id", fileIds);
+
+      if (deleteFilesErr) {
+        return res.status(500).json({ error: "Failed to delete PDF entries." });
+      }
+    }
+
+    const { error: unlinkErr } = await supabase
+      .from("weak_profiles_courses")
+      .delete()
+      .eq("course_id", courseId);
+
+    if (unlinkErr) {
+      return res.status(500).json({ error: "Failed to unlink course from users." });
+    }
+
+    const { error: deleteCourseErr } = await supabase
+      .from("UserCourses")
+      .delete()
+      .eq("id", courseId);
+
+    if (deleteCourseErr) {
+      return res.status(500).json({ error: "Failed to delete course." });
+    }
+
+    return res.status(200).json({ message: "Course (and its PDFs) deleted successfully." });
+  } catch {
+    if (!res.headersSent) {
+      return res.status(500).json({ error: "Internal server error." });
+    }
   }
 });
+
 
 
 router.post("/updateCourse/:id", async (req, res) => {
