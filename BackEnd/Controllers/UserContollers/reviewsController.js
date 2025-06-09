@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
-
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -38,7 +37,7 @@ router.post("/create_review", requireAuth, async (req, res) => {
       return res.status(500).json({ error: "Failed to submit review." });
     }
 
-    return res.status(200).json({ message: "Review submitted successfully." });
+    return res.status(200).json({ success: true, message: "Review submitted successfully." });
   } catch (err) {
     console.error("Server error:", err);
     return res.status(500).json({ error: "Internal server error." });
