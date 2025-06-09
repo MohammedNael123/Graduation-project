@@ -18,6 +18,7 @@ const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
 const UserProfile = require("./Controllers/UserContollers/userprofile.js");
 const AdminCont = require("./Controllers/Admin/AdminController.js");
+const review = require("./Controllers/UserContollers/reviewsController.js");
 
 //For Dropbox Refresh Token 
 const { refreshDropboxToken } = require("./Controllers/FilesControllers/updateDPXtoken.js");
@@ -79,6 +80,7 @@ app.use("/" , testme);
 app.use("/" , majorcheck);
 app.use("/" , UserProfile);
 app.use("/" , AdminCont);
+app.use("/" , review);
 
 
 
