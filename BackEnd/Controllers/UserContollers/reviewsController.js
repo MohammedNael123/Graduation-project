@@ -29,7 +29,6 @@ router.post("/create_review", requireAuth, async (req, res) => {
         {
           description,
           rating,
-          title: title || '',
           UserId: userId,
         },
       ]);
