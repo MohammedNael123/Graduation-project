@@ -31,14 +31,14 @@ router.get("/profile", async (req, res) => {
 router.post("/update-profile", async (req, res) => {
   try {
     const userId = req.session.user?.id;
-    const { newName } = req.body;
+    const { full_name } = req.body;
     if (!userId) {
       console.error("User Not Logged in!");
       return res.json({ message: "NOT logged in!" });
     }
     const { data, error } = supabase
       .from("profiles")
-      .update({ full_name: newName })
+      .update({ full_name: full_name })
       .eq("id", userId);
 
     if (error) {
