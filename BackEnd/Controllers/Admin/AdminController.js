@@ -9,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 
-const dbx       = new Dropbox({
+const dbx = new Dropbox({
   accessToken: process.env.DPX_TOKEN,
   fetch
 });
@@ -173,7 +173,7 @@ router.post("/Admin_deleteCourse/:id", async (req, res) => {
       return res.status(500).json({ error: "Failed to delete course." });
     }
 
-    return res.status(200).json({ message: "Course and related data deleted successfully." });
+    return res.status(200).json({ success: true, message: "Course and related data deleted successfully." });
   } catch (err) {
     console.error("Unexpected error:", err);
     if (!res.headersSent) {
