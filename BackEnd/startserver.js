@@ -12,6 +12,7 @@ const genTimeTable = require('./Controllers/AiTools/Generate-TimeTable.js');
 const deletecourse = require("./Controllers/CoursesControllers/DeleteCourse.js");
 const addFileToCourse = require("./Controllers/FilesControllers/FileUploadToDropbox.js");
 const editCourse = require("./Controllers/CoursesControllers/editcourse.js")
+const deleteFile = require("./Controllers/FilesControllers/DeleteFile.js");
 const generatesummary = require("./Controllers/AiTools/summarization.js");
 const testme = require("./Controllers/AiTools/testMe.js");
 const majorcheck = require("./Controllers/AiTools/major check12.js");
@@ -72,6 +73,7 @@ app.use("/" , genTimeTable);
 app.use("/" , deletecourse);
 app.use("/" , addFileToCourse);
 app.use("/" , editCourse);
+app.use("/" , deleteFile);
 app.use("/" , generatesummary);
 app.use("/" , testme);
 app.use("/" , majorcheck);
