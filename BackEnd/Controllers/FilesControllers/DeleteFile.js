@@ -119,6 +119,7 @@ const express = require("express");
 const { createClient } = require("@supabase/supabase-js");
 const { Dropbox } = require("dropbox");
 const fetch = require("node-fetch");
+const cors = require('cors');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const dbx = new Dropbox({
@@ -130,6 +131,11 @@ const router = express.Router();
 router.use(express.json());
 
 
+router.use(cors({
+  origin: ["https://darisni.netlify.app", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+  credentials: true
+}));
 
 router.post("/deleteCourse/:courseId", async (req, res) => {
   try {

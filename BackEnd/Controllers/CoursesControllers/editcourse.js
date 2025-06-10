@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const { createClient } = require("@supabase/supabase-js");
+const cors = require('cors');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const router = express.Router();
@@ -10,6 +11,12 @@ router.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
+}));
+
+router.use(cors({
+  origin: ["https://darisni.netlify.app", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+  credentials: true
 }));
 
 router.post("/EditCourseName", async (req, res) => {
