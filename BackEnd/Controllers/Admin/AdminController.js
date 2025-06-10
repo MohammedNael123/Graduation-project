@@ -243,6 +243,7 @@ router.get("/get_feedback", async (req, res) => {
   }
 });
 
+
 router.post("/update_review_status/:id", async (req, res) => {
   const feedbackId = req.params.id;
   const { IsAccepted } = req.body;
@@ -257,7 +258,7 @@ router.post("/update_review_status/:id", async (req, res) => {
       return res.status(400).json({ success: false, message: error.message });
     }
 
-    return res.json({ success: true, message: `FeedBack ${FeedBackId} updated` });
+    return res.json({ success: true, message: `FeedBack ${feedbackId} updated` });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server error" });
   }
