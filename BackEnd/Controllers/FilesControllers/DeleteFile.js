@@ -137,99 +137,102 @@ router.use(cors({
   credentials: true
 }));
 
-router.post("/deleteCourse/:courseId", async (req, res) => {
+router.delete("/deleteFile/:fileId", async (req, res) => {
   try {
-    console.log("API: DELETE COURSE STARTED");
-    const userId = req.session.user?.id;
-    const courseId = req.params.courseId;
+    const fileId = req.params.fileId;
 
-    if (!userId || !courseId) {
-      return res.status(400).json({ error: "Missing user or course ID." });
+    if (!fileId) {
+      return res.status(400).json({ error: "Missing file ID." });
     }
 
-    const { data: filesMeta, error: fetchErr } = await supabase
-      .from("weak_courses_pdf_files")
-      .select("pdf_file_id")
-      .eq("courses_id", courseId);
+    const { data: fileMeta, error: fetchErr } = await supabase
+      .from("uploaded_materials")
+      .select("dropbox_path")
+      .eq("id", fileId)
+      .single();
 
-    if (fetchErr) {
-      console.error("Error fetching course files:", fetchErr);
-      return res.status(500).json({ error: "Unable to fetch course files." });
+    if (fetchErr || !fileMeta) {
+      return res.status(404).json({ error: "File not found." });
     }
 
-    const fileIds = filesMeta.map(f => f.pdf_file_id);
+    const { data: courseFiles, error: courseFetchErr } = await supabase
+      .from("weak_courses_pdf_files") 
+      .select("course_id")
+      .eq("pdf_file_id", fileId);
 
-    if (fileIds.length > 0) {
-      const { data: pdfRows, error: metaErr } = await supabase
-        .from("uploaded_materials")
-        .select("id, dropbox_path")
-        .in("id", fileIds);
+    if (courseFetchErr) {
+      console.error("Error fetching course associations:", courseFetchErr);
+    }
 
-      if (metaErr) {
-        console.error("Error fetching PDF metadata:", metaErr);
-        return res.status(500).json({ error: "Unable to fetch file metadata." });
+    try {
+      await dbx.filesDeleteV2({ path: fileMeta.dropbox_path });
+    } catch (dropErr) {
+      if (dropErr?.status === 409 && dropErr?.error?.error_summary?.startsWith("path_lookup/not_found")) {
+        console.warn(`Dropbox file not found, skipping delete: ${fileMeta.dropbox_path}`);
+      } else {
+        console.error("Dropbox delete error:", dropErr);
+        return res.status(500).json({ error: "Failed to delete file from Dropbox." });
       }
+    }
 
-      for (const { dropbox_path } of pdfRows) {
-        try {
-          await dbx.filesDeleteV2({ path: dropbox_path });
-        } catch (dropErr) {
-          if (dropErr?.status === 409 && dropErr?.error?.error_summary?.startsWith("path_lookup/not_found")) {
-            console.warn(`Dropbox file not found, skipping: ${dropbox_path}`);
+    const { error: pdfMsgErr } = await supabase
+      .from("pdf_messages")
+      .delete()
+      .eq("pdf_file_id", fileId);
+
+    if (pdfMsgErr) {
+      console.error("Error deleting from pdf_messages:", pdfMsgErr);
+      return res.status(500).json({ error: "Failed to delete related messages." });
+    }
+
+    const { error: deleteFileErr } = await supabase
+      .from("uploaded_materials")
+      .delete()
+      .eq("id", fileId);
+
+    if (deleteFileErr) {
+      console.error("Error deleting uploaded file:", deleteFileErr);
+      return res.status(500).json({ error: "Failed to delete file." });
+    }
+
+    if (courseFiles && courseFiles.length > 0) {
+      for (const { course_id } of courseFiles) {
+        await supabase
+          .from("weak_courses_pdf_files")
+          .delete()
+          .eq("pdf_file_id", fileId)
+          .eq("course_id", course_id);
+
+        const { count, error: countError } = await supabase
+          .from("weak_courses_pdf_files")
+          .select("*", { count: "exact", head: true })
+          .eq("course_id", course_id);
+
+        if (countError) {
+          console.error("Error counting course files:", countError);
+          continue;
+        }
+
+        if (count === 0) {
+          const { error: courseDelError } = await supabase
+            .from("UserCourses")
+            .delete()
+            .eq("id", course_id);
+
+          if (courseDelError) {
+            console.error("Error deleting course:", courseDelError);
           } else {
-            console.error(`Dropbox delete error for ${dropbox_path}:`, dropErr);
+            console.log(`Deleted empty course: ${course_id}`);
           }
         }
       }
-
-      const { error: pdfMsgErr } = await supabase
-        .from("pdf_messages")
-        .delete()
-        .in("pdf_file_id", fileIds);
-
-      if (pdfMsgErr) {
-        console.error("Error deleting from pdf_messages:", pdfMsgErr);
-        return res.status(500).json({ error: "Failed to delete related messages." });
-      }
-
-      const { error: deleteFilesErr } = await supabase
-        .from("uploaded_materials")
-        .delete()
-        .in("id", fileIds);
-
-      if (deleteFilesErr) {
-        console.error("Error deleting uploaded_materials rows:", deleteFilesErr);
-        return res.status(500).json({ error: "Failed to delete PDF entries." });
-      }
     }
 
-    const { error: unlinkErr } = await supabase
-      .from("weak_profiles_courses")
-      .delete()
-      .match({ user_id: userId, course_id: courseId });
-
-    if (unlinkErr) {
-      console.error("Error unlinking course from user:", unlinkErr);
-      return res.status(500).json({ error: "Failed to unlink course from your profile." });
-    }
-
-    const { error: deleteCourseErr } = await supabase
-      .from("UserCourses")
-      .delete()
-      .match({ id: courseId });
-
-    if (deleteCourseErr) {
-      console.error("Error deleting course:", deleteCourseErr);
-      return res.status(500).json({ error: "Failed to delete course." });
-    }
-
-    return res.status(200).json({ message: "Course and related files deleted successfully." });
+    return res.status(200).json({ message: "File deleted successfully." });
 
   } catch (err) {
-    console.error("Unexpected error:", err);
-    if (!res.headersSent) {
-      return res.status(500).json({ error: "Internal server error." });
-    }
+    console.error("Unexpected error during file deletion:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
 });
 
