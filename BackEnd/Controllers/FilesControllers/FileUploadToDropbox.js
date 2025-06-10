@@ -49,7 +49,7 @@ router.post("/upload/:courseId", upload.single("file"), async (req, res) => {
     await fs.remove(file.path);
     console.log("Temp file deleted:", file.path);
 
-    return res.status(200).json({ message: "File uploaded successfully.", result: true });
+    return res.status(200).json({ result: true , message: "File uploaded successfully." });
 
   } catch (error) {
     console.error("Upload error:", error);
