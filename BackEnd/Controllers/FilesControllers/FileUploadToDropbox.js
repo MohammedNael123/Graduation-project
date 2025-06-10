@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const Dropbox = require("dropbox");
 const fs = require("fs-extra");
 const multer = require("multer");
@@ -13,7 +14,13 @@ const TMP_DIR = "/tmp";
 fs.ensureDirSync(TMP_DIR); 
 
 const router = express();
+router.use(cors({
+  origin: 'https://darisni.netlify.app',
+  credentials: true
+}));
 router.use(express.json());
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
