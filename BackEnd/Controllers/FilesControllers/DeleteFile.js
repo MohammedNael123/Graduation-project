@@ -155,15 +155,6 @@ router.delete("/deleteFile/:fileId", async (req, res) => {
       return res.status(404).json({ error: "File not found." });
     }
 
-    const { data: courseFiles, error: courseFetchErr } = await supabase
-      .from("weak_courses_pdf_files") 
-      .select("course_id")
-      .eq("pdf_file_id", fileId);
-
-    if (courseFetchErr) {
-      console.error("Error fetching course associations:", courseFetchErr);
-    }
-
     try {
       await dbx.filesDeleteV2({ path: fileMeta.dropbox_path });
     } catch (dropErr) {
@@ -193,39 +184,6 @@ router.delete("/deleteFile/:fileId", async (req, res) => {
     if (deleteFileErr) {
       console.error("Error deleting uploaded file:", deleteFileErr);
       return res.status(500).json({ error: "Failed to delete file." });
-    }
-
-    if (courseFiles && courseFiles.length > 0) {
-      for (const { course_id } of courseFiles) {
-        await supabase
-          .from("weak_courses_pdf_files")
-          .delete()
-          .eq("pdf_file_id", fileId)
-          .eq("course_id", course_id);
-
-        const { count, error: countError } = await supabase
-          .from("weak_courses_pdf_files")
-          .select("*", { count: "exact", head: true })
-          .eq("course_id", course_id);
-
-        if (countError) {
-          console.error("Error counting course files:", countError);
-          continue;
-        }
-
-        if (count === 0) {
-          const { error: courseDelError } = await supabase
-            .from("UserCourses")
-            .delete()
-            .eq("id", course_id);
-
-          if (courseDelError) {
-            console.error("Error deleting course:", courseDelError);
-          } else {
-            console.log(`Deleted empty course: ${course_id}`);
-          }
-        }
-      }
     }
 
     return res.status(200).json({ message: "File deleted successfully." });
