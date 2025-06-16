@@ -11,9 +11,9 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/generate-timetable", async (req, res) => {
   try {
-    const { fileUrl, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd , Language } = req.body;
+    const { fileUrl, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd , language } = req.body;
     const fullText = await processFile(fileUrl);
-    const timetableHtml = await generateTimetable(fullText, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd, Language);
+    const timetableHtml = await generateTimetable(fullText, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd, language);
     
     res.header("Content-Type", "text/html");
     res.send(timetableHtml);
