@@ -11,9 +11,9 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/api/generate-timetable", async (req, res) => {
   try {
-    const { fileUrl, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd } = req.body;
+    const { fileUrl, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd , Language } = req.body;
     const fullText = await processFile(fileUrl);
-    const timetableHtml = await generateTimetable(fullText, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd);
+    const timetableHtml = await generateTimetable(fullText, DateOfStart, TimeOfStart, DateOfEnd, TimeOfEnd, Language);
     
     res.header("Content-Type", "text/html");
     res.send(timetableHtml);
@@ -37,7 +37,7 @@ function sanitizeHtml(rawText) {
   return cleaned;
 }
 
-async function generateTimetable(text, startDate, startTime, endDate, endTime) {
+async function generateTimetable(text, startDate, startTime, endDate, endTime, language) {
   try {
     const model = genAI.getGenerativeModel({ model: process.env.GiminiAiModel });
 
@@ -323,7 +323,7 @@ async function generateTimetable(text, startDate, startTime, endDate, endTime) {
            </html>
            
            Do not include any text outside of the HTML code. Your output must contain only the HTML as shown, with no markdown formatting or commentary.
-           based on these (${startDate},${startTime} ,${endDate} , ${endTime})  and this text ${text} you must change the values of start time,end time,dates,title and every thing,
+           based on these (${startDate},${startTime} ,${endDate} , ${endTime}, ${language})  and this text ${text} you must change the values of start time,end time,dates,title and every thing,
            you must don't exeeds the end time , if rest time not important don't add it but don't exeeds the end time and Space out the study periods according to the start date and the end date.
            `;
 
